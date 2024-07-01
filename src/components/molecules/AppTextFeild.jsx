@@ -1,0 +1,46 @@
+/* eslint-disable react/prop-types */
+import { TextField, InputAdornment } from "@mui/material";
+import AppDiv from "../atoms/AppDiv";
+import { flexCol } from "./../../utils/styles/index";
+
+const AppTextField = ({ label, placeholder, icon, rest }) => {
+  return (
+    <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
+      <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }} htmlFor="text">
+        {label}
+      </label>
+      <TextField
+        sx={{
+          backgroundColor: "#F6F8F9",
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: "#F6F8F9",
+            },
+          },
+          mt: 2,
+          "& .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline": {
+            border: "none",
+          },
+          "& .MuiOutlinedInput-notchedOutline": {
+            border: "none",
+          },
+          ...rest,
+          borderRadius: 3,
+        }}
+        inputProps={{ style: { fontSize: 12 } }}
+        variant="outlined"
+        placeholder={placeholder}
+        fullWidth
+        InputProps={{
+          startAdornment: icon ? (
+            <InputAdornment position="start">
+              <img src={icon} alt="icon" style={{ width: 20 }} />
+            </InputAdornment>
+          ) : null,
+        }}
+      />
+    </AppDiv>
+  );
+};
+
+export default AppTextField;
