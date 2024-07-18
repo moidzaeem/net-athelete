@@ -14,8 +14,142 @@ import { secondary } from "../../../utils/theme/colors";
 import gallery from "../../../assets/svg/gallery.svg";
 import attach from "../../../assets/svg/attach.svg";
 import smile from "../../../assets/svg/smile.svg";
+import { useEffect, useState } from "react";
+import useCrypto from "../../../utils/hooks/encrypt";
+import axios from "axios";
+import { toast } from "react-toastify";
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const FeedCard = () => {
+  const { decryptedData } = useCrypto();
+  const [comment, setComment] = useState("");
+  const [feedData, setFeedData] = useState([]); // Initialize 
+
+
+  const url = import.meta.env.VITE_BASE_URL;
+
+
+
+  const handleCommentChange = (e) => setComment(e.target.value);
+  const fetchFeedData = async () => {
+    try {
+      const token = decryptedData?.tokens?.access?.token; // Get JWT token from local storage
+      if (!token) {
+        throw new Error('No token found in local storage');
+      }
+      const response = await axios.get(
+        `${url}/feed`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setFeedData(response.data.data.result); // Set fetched data to state
+      } else {
+        throw new Error('Failed to fetch feed data');
+      }
+    } catch (error) {
+      console.error('Error fetching feed data:', error);
+      // Handle error state or notify user of failure
+    }
+  };
+
+  console.log(comment)
+
+  
+  useEffect(() => {
+    (async () => {
+      await fetchFeedData();
+    })();
+  
+  }, [decryptedData?.tokens.access.token]);
+
+
+  const LikePost = async (id,endp) => {
+    
+    const url = import.meta.env.VITE_BASE_URL;
+
+
+    try {
+      const token = decryptedData.tokens.access.token; // Get JWT token from local storage
+      if (!token) {
+        throw new Error('No token found in local storage');
+      }
+
+      const response = await axios.post(
+        `${url}${endp}`,
+        {
+          feed_id:id,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log(response)
+        toast.success(response.data.message); // Notify user of success
+        await fetchFeedData();
+       } else {
+        throw new Error('Failed to Like post');
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+      toast.error('Failed to Like post. Please try again.'); // Notify user of failure
+    }
+  }
+
+
+  
+  // Handle loading state while fetching data
+  if (!feedData) {
+    return <p>Loading...</p>;
+  }
+
+  const handleComment = async (id) => {
+    const url = import.meta.env.VITE_BASE_URL;
+
+
+    try {
+      const token = decryptedData.tokens.access.token; // Get JWT token from local storage
+      if (!token) {
+        throw new Error('No token found in local storage');
+      }
+
+      const response = await axios.post(
+        `${url}/feed/feed-comment`,
+        {
+          feed_id:id,
+          text:comment
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // console.log(response)
+        setComment(" ")
+        toast.success(response.data.message); // Notify user of success
+        await fetchFeedData();
+       } else {
+        throw new Error('Failed to comment on post');
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+      toast.error('Failed to comment on post Please try again.'); // Notify user of failure
+    }
+  };
+
   return (
     <AppDiv
       sx={{
@@ -25,73 +159,92 @@ const FeedCard = () => {
         p: 2,
       }}
     >
-      <AppDiv
-        sx={{ display: "flex", alignItems: "flex-start", mt: 1, justifyContent: "space-between" }}
-      >
-        <AppDiv sx={{ display: "flex", alignItems: "flex-start" }}>
-          <AppAvatar src="/avatar.svg" />
-          <AppDiv sx={{ ml: 1, mt: 1 }}>
-            <AppLabel sx={{ textAlign: "start" }}>Mbappe</AppLabel>
-            <Appcaption sx={{ textAlign: "start" }}>12 April at 09.28 PM</Appcaption>
+      {feedData.map((item, index) => (
+        <div key={index}>
+          <AppDiv sx={{ display: "flex", alignItems: "flex-start", mt: 1, justifyContent: "space-between" }}>
+            <AppAvatar src={item.avatar} />
+            <AppDiv sx={{ ml: 1, mt: 1 }}>
+              <AppLabel sx={{ textAlign: "start" }}>{item.author}</AppLabel>
+              <Appcaption sx={{ textAlign: "start" }}>{new Date(item.createdAt).toLocaleString()}</Appcaption>
+
+            </AppDiv>
+            <AppIconButton>
+              <MoreHorizOutlinedIcon />
+            </AppIconButton>
           </AppDiv>
-        </AppDiv>
-        <AppIconButton>
-          <MoreHorizOutlinedIcon />
-        </AppIconButton>
-      </AppDiv>
-      <Appfont sx={{ textAlign: "start", mt: 2 }}>
-        Planning a trip to see the northern lights in Norway is an excellent choice, as Norway
-        offers some of the best opportunities to witness this natural phenomenon. suggested
-        itinerary for a 3-day trip:
-      </Appfont>
-      <Grid container gap={1} sx={{ alignItems: "center", mt: 3 }}>
-        <Grid xs={5.5}>
-          <img
-            style={{ width: "100%", height: "400px", borderRadius: "20px" }}
-            src="https://e1.pxfuel.com/desktop-wallpaper/750/328/desktop-wallpaper-b-a-d-r-on-twitter-mbappe-psg-2022-thumbnail.jpg"
-            alt=""
-          />
-        </Grid>
-        <Grid xs={5.5}>
-          {" "}
-          <div>
-            <img
-              style={{ width: "100%", height: "200px", borderRadius: "20px" }}
-              src="https://play-lh.googleusercontent.com/oht1RD5yMCy8Mc6nC0eaTqDrPvH5OmbcqI2SvkqiwsdjQPlVI0BOKnIqZ2_Oih_ejEk"
-              alt=""
-            />
-          </div>
-          <div>
-            <img
-              style={{ width: "100%", height: "200px", borderRadius: "20px" }}
-              src="https://i.pinimg.com/originals/e3/59/8f/e3598f1283690433dd47166a69a290e5.gif"
-              alt=""
-            />
-          </div>
-        </Grid>
-      </Grid>
+          <Appfont sx={{ textAlign: "start", mt: 2 }}>
+            {item.text}
+          </Appfont>
+          <Grid container gap={1} sx={{ alignItems: "center", mt: 3 }}>
+            <Grid xs={5.5}>
+              <img
+                style={{ objectFit:"cover", width: "100%", height: "400px", borderRadius: "20px" }}
+                src={item.media}
+                alt=""
+              />
+            </Grid>
+            <Grid xs={5.5}>
+              <div>
+                <img
+                  style={{ objectFit:"cover", width: "100%", height: "200px", borderRadius: "20px" }}
+                  src={item.media}
+                  alt=""
+                />
+              </div>
+              <div>
+                <img
+                  style={{ objectFit:"cover", width: "100%", height: "200px", borderRadius: "20px" }}
+                  src={item.media}
+                  alt=""
+                />
+              </div>
+            </Grid>
+          </Grid>
+
+          <Divider sx={{ my: 2 }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+          <img src={commenticon} alt="comment" style={{ marginRight: "0.5rem" }} />
+          <span>{item.total_comments} Comments</span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => LikePost(item.id, "/feed/feed-like")}>
+          {item.liked ? (
+            <FavoriteIcon sx={{ color: secondary }} />
+          ) : (
+            <FavoriteBorderIcon sx={{ color: secondary }} />
+          )}
+          <span style={{ marginLeft: "0.5rem" }}>{item.total_likes} Likes</span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+          <ShareIcon sx={{ color: secondary }} />
+          <span style={{ marginLeft: "0.5rem" }}>{item.total_shares} Share</span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+          <TurnedInIcon sx={{ color: secondary }} />
+          <span style={{ marginLeft: "0.5rem" }}>{item.total_saved} Saved</span>
+        </div>
+      </div>
+
+      <Divider style={{ margin: "1rem 0" }} />
+
+      {/* Comment Field */}
+      <TextField
+        placeholder="Add a comment..."
+        variant="outlined"
+        fullWidth
+        onChange={handleCommentChange}
+        margin="dense"
+        InputProps={{
+          endAdornment: <button className="post-btn" onClick={() => handleComment(item.id)}>Post</button>, // Replace with your post button or icon
+        }}
+      />
+        </div>
+      ))}
 
       <Divider sx={{ my: 2 }} />
-      <AppDiv sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <AppDiv sx={{ display: "flex" }}>
-          <img src={commenticon} alt="" style={{ cursor: "pointer" }} />
-          <Appcaption sx={iconSty}> 25 Comments</Appcaption>
-        </AppDiv>
-        <AppDiv sx={{ display: "flex" }}>
-          <FavoriteBorderIcon sx={{ color: secondary, cursor: "pointer" }} />
-          <Appcaption sx={iconSty}>120k Likes</Appcaption>
-        </AppDiv>
-        <AppDiv sx={{ display: "flex" }}>
-          <ShareIcon sx={{ color: secondary, cursor: "pointer" }} />
-          <Appcaption sx={iconSty}>231 Share</Appcaption>
-        </AppDiv>
-        <AppDiv sx={{ display: "flex" }}>
-          <TurnedInIcon sx={{ color: secondary, cursor: "pointer" }} />
-          <Appcaption sx={iconSty}>12 Saved</Appcaption>
-        </AppDiv>
-      </AppDiv>
-      <Divider sx={{ my: 2 }} />
-
       <AppDiv sx={{ display: "flex", alignItems: "center" }}>
         <Avatar src="/avatar.svg" />
         <TextField
@@ -136,6 +289,7 @@ const FeedCard = () => {
 };
 
 export default FeedCard;
+
 
 const iconSty = {
   ml: 2,

@@ -45,3 +45,19 @@ body {
   -o-transform: translate(-50%, -50%) !important;
 }
 /* center a div */
+
+
+
+.post-btn{
+  padding: 13px 25px;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  margin-left: 10px;
+  margin-bottom: 5px;
+  font-size: 17px;
+  cursor: pointer;
+}
+.post-btndisable{
+  opacity: 0.5;
+}

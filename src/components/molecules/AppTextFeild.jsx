@@ -1,9 +1,14 @@
-/* eslint-disable react/prop-types */
 import { TextField, InputAdornment } from "@mui/material";
 import AppDiv from "../atoms/AppDiv";
 import { flexCol } from "./../../utils/styles/index";
 
-const AppTextField = ({ label, placeholder, icon, rest }) => {
+const AppTextField = ({ label, placeholder, icon, value, onChange, ...rest }) => {
+  const handleChange = (event) => {
+    if (onChange) {
+      onChange(event.target.value); // Pass the new value to the parent component
+    }
+  };
+
   return (
     <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
       <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }} htmlFor="text">
@@ -24,8 +29,8 @@ const AppTextField = ({ label, placeholder, icon, rest }) => {
           "& .MuiOutlinedInput-notchedOutline": {
             border: "none",
           },
-          ...rest,
           borderRadius: 3,
+          ...rest,
         }}
         inputProps={{ style: { fontSize: 12 } }}
         variant="outlined"
@@ -38,6 +43,8 @@ const AppTextField = ({ label, placeholder, icon, rest }) => {
             </InputAdornment>
           ) : null,
         }}
+        value={value} // Controlled input: value prop
+        onChange={handleChange} // Controlled input: onChange prop
       />
     </AppDiv>
   );

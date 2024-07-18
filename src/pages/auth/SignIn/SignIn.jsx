@@ -60,9 +60,10 @@ const SignInPage = () => {
       );
 
       if (response?.status === 200) {
-        encrypt(response.data.data);
+        console.log(response)
+        encrypt(response.data.data); 
         toast(response.data.message);
-        navigate("/");
+        navigate("/"); 
         // Delay the reload to give time for the toast to be visible
         setTimeout(() => {
           window.location.reload();

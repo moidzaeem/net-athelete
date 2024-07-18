@@ -68,9 +68,15 @@ const SignUpPage = () => {
       },
     });
   };
+
+  
+  
+  
+  const url = import.meta.env.VITE_BASE_URL;
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    fetch(`${import.meta.env.VITE_BASE_URL}/user`, {
+    fetch(`${url}/user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,12 +85,13 @@ const SignUpPage = () => {
     })
       .then((response) => {
         if (!response.ok) {
+          console.log(response)
           throw new Error("Network response was not ok");
         }
         return response.json();
       })
       .then((data) => {
-        console.log("Success:", data);
+        // console.log("Success:", data);
         toast(data.message);
         navigate("/signin");
         // You can handle success response here, e.g., redirect to another page
