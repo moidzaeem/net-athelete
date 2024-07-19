@@ -1,3 +1,4 @@
+import React from "react";
 import AppDiv from "../../../components/atoms/AppDiv";
 import { PaperStyle } from "../../../utils/styles";
 import { AppLabel, Appcaption, Appfont } from "../../../utils/theme";
@@ -14,7 +15,7 @@ import { secondary } from "../../../utils/theme/colors";
 import gallery from "../../../assets/svg/gallery.svg";
 import attach from "../../../assets/svg/attach.svg";
 import smile from "../../../assets/svg/smile.svg";
-import { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -25,7 +26,9 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 const FeedCard = ({chnageFeedData}) => {
   const { decryptedData } = useCrypto();
   const [comment, setComment] = useState("");
+  const [commentLoading, setCommentLoading] = useState(false);
   const [feedData, setFeedData] = useState([]); // Initialize 
+  const [profile, setProfile] = useState([]); // Initialize 
 
   const [showDeleteButton, setShowDeleteButton] = useState(false);
 
@@ -53,6 +56,7 @@ const url = import.meta.env.VITE_BASE_URL;
 
       if (response.status === 200) {
         setFeedData(response?.data?.data?.result); // Set fetched data to state
+        setComment("")
       } else {
         throw new Error('Failed to fetch feed data');
       }
@@ -62,6 +66,41 @@ const url = import.meta.env.VITE_BASE_URL;
     }
   };
 
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = decryptedData?.tokens?.access?.token; // Get JWT token from local storage
+      if (!token) {
+        throw new Error('No token found in local storage');
+      }
+      const response = await axios.get(
+        `${url}/user`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log(response.data)
+        setProfile([response?.data?.data]); // Set fetched data to state
+      } else {
+        throw new Error('Failed to fetch user data');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      // Handle error state or notify user of failure
+    }
+  };
+
+  
+  useEffect(() => {
+    (async () => {
+      await fetchUserProfile();
+    })();
+  
+  }, [decryptedData?.tokens.access.token]);
   
   useEffect(() => {
     (async () => {
@@ -72,6 +111,8 @@ const url = import.meta.env.VITE_BASE_URL;
 
 
   const LikePost = async (id,endp) => {
+
+    setCommentLoading(true)
     
     const url = import.meta.env.VITE_BASE_URL;
 
@@ -96,17 +137,23 @@ const url = import.meta.env.VITE_BASE_URL;
       );
 
       if (response.status === 200) {
-        console.log(response)
+        setCommentLoading(false)
         toast.success(response.data.message); // Notify user of success
         await fetchFeedData();
-       } else {
+      } else {
+        setCommentLoading(false)
         throw new Error('Failed to Like post');
       }
     } catch (error) {
       console.error('Error creating post:', error);
+      setCommentLoading(false)
       toast.error('Failed to Like post. Please try again.'); // Notify user of failure
     }
   }
+
+
+
+  // console.log(feedData)
 
 
   
@@ -117,6 +164,7 @@ const url = import.meta.env.VITE_BASE_URL;
 
   const handleComment = async (id) => {
     const url = import.meta.env.VITE_BASE_URL;
+    setCommentLoading(true)
 
 
     try {
@@ -141,14 +189,17 @@ const url = import.meta.env.VITE_BASE_URL;
 
       if (response.status === 200) {
         // console.log(response)
-        setComment(" ")
+        setComment("")
         toast.success(response.data.message); // Notify user of success
         await fetchFeedData();
-       } else {
+        setCommentLoading(false)
+      } else {
         throw new Error('Failed to comment on post');
       }
     } catch (error) {
+      setCommentLoading(false)
       console.error('Error creating post:', error);
+
       toast.error('Failed to comment on post Please try again.'); // Notify user of failure
     }
   };
@@ -164,8 +215,7 @@ const url = import.meta.env.VITE_BASE_URL;
       if (!token) {
         throw new Error('No token found in local storage');
       }
-      console.log(token)
-
+     
       const response = await axios.delete(
         `${url}/feed/${feed_id}`,
         {
@@ -177,10 +227,11 @@ const url = import.meta.env.VITE_BASE_URL;
       );
 
       if (response.status === 200) {
-        // console.log(response)
-        console.log(response)
-        toast.success(response.data.message); // Notify user of success
-        await fetchFeedData();
+        if (response.data.status !== 400) {
+
+          toast.success("feed Deleted sucessfuly"); // Notify user of success
+          await fetchFeedData();
+        }
        } else {
         throw new Error('Failed to delete feed');
       }
@@ -189,6 +240,9 @@ const url = import.meta.env.VITE_BASE_URL;
       toast.error('Failed to delete feed Please try again.'); // Notify user of failure
     }
   };
+
+
+  console.log(feedData)
 
   return (
     <AppDiv
@@ -202,7 +256,12 @@ const url = import.meta.env.VITE_BASE_URL;
       {feedData.map((item, index) => (
         <div key={index}>
           <AppDiv sx={{ display: "flex", alignItems: "flex-start", mt: 1, justifyContent: "space-between" }}>
-            <AppAvatar src={item.avatar} />
+            
+          <div className="flex items-center gap-2 justify-center">
+            <h2 className=" w-10 h-10 flex  text-white items-center justify-center text-[26px] pb-1 uppercase rounded-full bg-[#104bee]">{item?.user?.name.charAt(0) }</h2>
+             <p className="capitalize tracking-wide  text-[#696060]">{item?.user?.name}</p>
+             </div>
+
             <AppDiv sx={{ ml: 1, mt: 1 }}>
               <AppLabel sx={{ textAlign: "start" }}>{item.author}</AppLabel>
               <Appcaption sx={{ textAlign: "start" }}>{new Date(item.createdAt).toLocaleString()}</Appcaption>
@@ -214,9 +273,12 @@ const url = import.meta.env.VITE_BASE_URL;
       </AppIconButton>
 
       {showDeleteButton && (
+           profile?.map((profileData) => (
+            profileData.id === item.user_id && (
         <AppIconButton onClick={() => deleteFeed(item.id)}>
           <DeleteOutlineOutlinedIcon />
         </AppIconButton>
+            )) )
       )}
     </div>
           </AppDiv>
@@ -255,15 +317,16 @@ const url = import.meta.env.VITE_BASE_URL;
           <img src={commenticon} alt="comment" style={{ marginRight: "0.5rem" }} />
           <span>{item.total_comments} Comments</span>
         </div>
-
-        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => LikePost(item.id, "/feed/feed-like")}>
-          {item.liked ? (
-            <FavoriteIcon sx={{ color: secondary }} />
-          ) : (
-            <FavoriteBorderIcon sx={{ color: secondary }} />
-          )}
-          <span style={{ marginLeft: "0.5rem" }}>{item.total_likes} Likes</span>
-        </div>
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+  {item.likes.find((like) => like.feed_id === item.id) ? (
+    <FavoriteIcon sx={{ color: "red" }} />
+  ) : (
+    <button disabled={commentLoading} onClick={() => LikePost(item.id, "/feed/feed-like")}>
+    <FavoriteBorderIcon  sx={{ color: secondary }} />
+    </button>
+  )}
+  <span style={{ marginLeft: "0.5rem" }}>{item.total_likes} Likes</span>
+</div>
 
         <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
           <ShareIcon sx={{ color: secondary }} />
@@ -278,15 +341,32 @@ const url = import.meta.env.VITE_BASE_URL;
 
       <Divider style={{ margin: "1rem 0" }} />
 
+      {item?.comments && item.comments.length > 0 ? (
+        
+        <div className="w-full overflow-y-scroll h-[100px] my-2 no-scrollbar">
+        {
+          item?.comments?.map((it) => (
+            <React.Fragment key={it.id}>
+
+            <p className="border-b px-2 inline-block bg-[#f7f7f7] my-2 rounded-lg w-auto py-2">{it.text}</p>
+            <br />
+            </React.Fragment>
+            
+          ))
+        }
+      </div>
+        ) : ''}
+
       {/* Comment Field */}
       <TextField
         placeholder="Add a comment..."
         variant="outlined"
         fullWidth
+        value={comment}
         onChange={handleCommentChange}
         margin="dense"
         InputProps={{
-          endAdornment: <button className="post-btn" onClick={() => handleComment(item.id)}>Post</button>, // Replace with your post button or icon
+          endAdornment: <button className={` ${ commentLoading && "post-btndisable"} post-btn`} onClick={() => handleComment(item.id)}>Post</button>, // Replace with your post button or icon
         }}
       />
         </div>
