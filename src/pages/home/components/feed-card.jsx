@@ -52,7 +52,7 @@ const url = import.meta.env.VITE_BASE_URL;
       );
 
       if (response.status === 200) {
-        setFeedData(response.data.data.result); // Set fetched data to state
+        setFeedData(response?.data?.data?.result); // Set fetched data to state
       } else {
         throw new Error('Failed to fetch feed data');
       }
