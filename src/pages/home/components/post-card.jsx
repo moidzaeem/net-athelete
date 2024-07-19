@@ -8,13 +8,16 @@ import { toast } from "react-toastify";
 import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
 
-const PostCard = () => {
+const PostCard = ({chnageFeedData,setChangeFeedData}) => {
   const { decryptedData } = useCrypto();
   const [postContent, setPostContent] = useState("");
   const [media, setMedia] = useState("");
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
+
+
+
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -30,9 +33,6 @@ const PostCard = () => {
       if (!token) {
         throw new Error('No token found in local storage');
       }
-
-      console.log(media)
-
       const response = await axios.post(
         `${url}/feed`,{
           text:postContent,
@@ -49,7 +49,8 @@ const PostCard = () => {
       if (response.status === 200) {
         setLoading(false)
         toast.success(response.data.message); // Notify user of success
-        // handleFile()
+        setChangeFeedData(!chnageFeedData)
+        
        } else {
         throw new Error('Failed to create post');
       }
@@ -84,9 +85,11 @@ setLoading(true)
     if (response.status === 200) {
       console.log(response.data)
       if(response.data.status !== 400){
-        setMedia(response?.data?.data?.upload_link)
+        console.log(response.data.data.upload_link)
+        setMedia(response.data.data.upload_link)
         handleSubmit()
       }
+      setLoading(false)
       toast.error(response.data.message)
     
       

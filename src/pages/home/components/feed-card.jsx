@@ -19,17 +19,22 @@ import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
 import { toast } from "react-toastify";
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
-const FeedCard = () => {
+
+const FeedCard = ({chnageFeedData}) => {
   const { decryptedData } = useCrypto();
   const [comment, setComment] = useState("");
   const [feedData, setFeedData] = useState([]); // Initialize 
 
+  const [showDeleteButton, setShowDeleteButton] = useState(false);
 
-  const url = import.meta.env.VITE_BASE_URL;
+  const handleMoreButtonClick = () => {
+    setShowDeleteButton(true); // Hide the delete button when more button is clicked
+    // You can add more logic here based on your requirements
+  };
 
-
-
+const url = import.meta.env.VITE_BASE_URL;
   const handleCommentChange = (e) => setComment(e.target.value);
   const fetchFeedData = async () => {
     try {
@@ -57,15 +62,13 @@ const FeedCard = () => {
     }
   };
 
-  console.log(comment)
-
   
   useEffect(() => {
     (async () => {
       await fetchFeedData();
     })();
   
-  }, [decryptedData?.tokens.access.token]);
+  }, [decryptedData?.tokens.access.token,chnageFeedData]);
 
 
   const LikePost = async (id,endp) => {
@@ -150,6 +153,43 @@ const FeedCard = () => {
     }
   };
 
+  const deleteFeed = async (feed_id) => {
+    const url = import.meta.env.VITE_BASE_URL;
+
+
+    
+    
+    try {
+      const token = decryptedData.tokens.access.token; // Get JWT token from local storage
+      if (!token) {
+        throw new Error('No token found in local storage');
+      }
+      console.log(token)
+
+      const response = await axios.delete(
+        `${url}/feed/${feed_id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // console.log(response)
+        console.log(response)
+        toast.success(response.data.message); // Notify user of success
+        await fetchFeedData();
+       } else {
+        throw new Error('Failed to delete feed');
+      }
+    } catch (error) {
+      console.error('Failed to delete feed:', error);
+      toast.error('Failed to delete feed Please try again.'); // Notify user of failure
+    }
+  };
+
   return (
     <AppDiv
       sx={{
@@ -168,9 +208,17 @@ const FeedCard = () => {
               <Appcaption sx={{ textAlign: "start" }}>{new Date(item.createdAt).toLocaleString()}</Appcaption>
 
             </AppDiv>
-            <AppIconButton>
-              <MoreHorizOutlinedIcon />
-            </AppIconButton>
+            <div className="flex items-center space-x-2">
+      <AppIconButton onClick={handleMoreButtonClick}>
+        <MoreHorizOutlinedIcon />
+      </AppIconButton>
+
+      {showDeleteButton && (
+        <AppIconButton onClick={() => deleteFeed(item.id)}>
+          <DeleteOutlineOutlinedIcon />
+        </AppIconButton>
+      )}
+    </div>
           </AppDiv>
           <Appfont sx={{ textAlign: "start", mt: 2 }}>
             {item.text}

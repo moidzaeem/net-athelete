@@ -6,16 +6,23 @@ import FeedCard from "./components/feed-card";
 import PostCard from "./components/post-card";
 import StoriesCard from "./components/stories-card";
 import SuggestionCard from "./components/suggestion-card";
+import { useState } from "react";
 
 const HomePage = () => {
+  
+
+  const [chnageFeedData, setChangeFeedData] = useState(true); // Initialize 
+
+
+
   return (
     <Grid container spacing={2}>
       {/* center - Displayed first on smaller screens */}
       <Grid item xs={12} md={7} order={{ xs: 1, md: 2 }}>
         <AppDiv>
-          <PostCard />
+          <PostCard chnageFeedData={chnageFeedData} setChangeFeedData={setChangeFeedData} />
           <AppDiv height={20} />
-          <FeedCard />
+          <FeedCard chnageFeedData={chnageFeedData} />
         </AppDiv>
       </Grid>
       {/* left - Displayed second on smaller screens */}
