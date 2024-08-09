@@ -35,7 +35,7 @@ const StoriesCard = () => {
         </AppDiv>
       </AppDiv>
       {/* avatar */}
-      {[1, 2, 3].map((items) => {
+      {/* {[1, 2, 3].map((items) => {
         return (
           <div key={items}>
             <AppDiv sx={{ display: "flex", alignItems: "center", mt: 1 }}>
@@ -47,7 +47,7 @@ const StoriesCard = () => {
             </AppDiv>
           </div>
         );
-      })}
+      })} */}
       <AppButton
         sx={{
           height: 40,

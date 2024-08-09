@@ -38,7 +38,7 @@ const HomePage = () => {
       {/* right - Displayed third on smaller screens */}
       <Grid item xs={12} md={2.5} order={{ xs: 3, md: 3 }}>
         <AppDiv>
-          <FriendsSidebar />
+          {/* <FriendsSidebar /> */}
         </AppDiv>
       </Grid>
     </Grid>

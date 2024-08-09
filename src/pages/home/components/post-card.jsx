@@ -8,106 +8,95 @@ import { toast } from "react-toastify";
 import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
 
-const PostCard = ({chnageFeedData,setChangeFeedData}) => {
+const PostCard = ({ chnageFeedData, setChangeFeedData }) => {
   const { decryptedData } = useCrypto();
   const [postContent, setPostContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [media, setMedia] = useState('');
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
   };
 
-
-
-  useEffect(() => {
-    const handleSubmit = async () => {
-      setLoading(true);
-      const url = import.meta.env.VITE_BASE_URL; // Assuming you are using Vite for environment variables
-  
-      try {
-        const token = decryptedData.tokens.access.token; // Get JWT token from local storage
-        if (!token) {
-          throw new Error('No token found in local storage');
-        }
-  
-        console.log(media)
-        const response = await axios.post(
-          `${url}/feed`,
-          {
-            text: postContent,
-            media: media, // Use the media state here
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-  
-        if (response.status === 200) {
-          setLoading(false);
-          setChangeFeedData(!chnageFeedData)
-          setPostContent("")
-          toast.success(response.data.message); // Notify user of success
-          // Optionally, reset form fields or take other actions after successful post creation
-        } else {
-          throw new Error('Failed to create post');
-        }
-      } catch (error) {
-        setLoading(false);
-        console.error('Error creating post:', error);
-        toast.error('Failed to create post. Please try again.'); // Notify user of failure
-      }
-    };
-
-    if(media){
-      handleSubmit()
-    }
-  },[media])
-
-  const handleFile = async () => {
-    setLoading(true);
-    const url = import.meta.env.VITE_BASE_URL; // Assuming you are using Vite for environment variables
-
+  const formData = new FormData();
+  const handleSubmit = async () => {
+    const url = import.meta.env.VITE_BASE_URL;
     try {
       const token = decryptedData.tokens.access.token; // Get JWT token from local storage
       if (!token) {
-        throw new Error('No token found in local storage');
+        throw new Error("No token found in local storage");
       }
-
-      const formData = new FormData();
-      formData.append('file', selectedImage);
-
-      const response = await axios.post(`${url}/user/upload-file`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      var dataToSent = {};
+      dataToSent.text = postContent;
+      if (selectedImage) {
+        dataToSent.media = media;
+      }
+      const response = await axios.post(
+        `${url}/feed`,
+        dataToSent,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 200) {
-        if (response.data.status !== 400) {
-          // setMedia(response.data.data.upload_link); // Set media state with the uploaded file link
-          setMedia(response.data.data.upload_link); // Set media state with the uploaded file link
-          // handleSubmit(); // Call handleSubmit after successful file upload
-        }
         setLoading(false);
-        toast.error(response.data.message); // Notify user of success or failure
+        toast.success(response.data.message); // Notify user of success
+        setChangeFeedData(!chnageFeedData);
       } else {
-        throw new Error('Failed to upload file');
+        throw new Error("Failed to create post");
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
       setLoading(false);
-      toast.error('Failed to upload file. Please try again.'); // Notify user of failure
+      console.error("Error creating post:", error);
+      toast.error("Failed to create post. Please try again."); // Notify user of failure
     }
   };
 
+  const handleFile = async () => {
+    if (selectedImage) {
+      formData.append("file", selectedImage);
 
+      const url = import.meta.env.VITE_BASE_URL;
+      setLoading(true);
+      try {
+        const token = decryptedData.tokens.access.token; // Get JWT token from local storage
+        if (!token) {
+          throw new Error("No token found in local storage");
+        }
+
+        const response = await axios.post(`${url}/user/upload-file`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          console.log(response.data);
+          if (response.data.status !== 400) {
+            console.log(response.data.data.upload_link);
+            setMedia(response.data.data.upload_link);
+            handleSubmit();
+          }
+          setLoading(false);
+          toast.error(response.data.message);
+
+          // toast.success(response.data.message); // Notify user of success
+        } else {
+          throw new Error("Failed to upload file");
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        setLoading(false);
+        toast.error("Failed to upload file. Please try again."); // Notify user of failure
+      }
+    } else {
+      handleSubmit();
+    }
+  };
 
   return (
     <AppDiv
@@ -119,11 +108,11 @@ const PostCard = ({chnageFeedData,setChangeFeedData}) => {
       }}
     >
       <AppDiv sx={{ display: "flex", justifyContent: "space-between" }}>
-      <AppLabel>Post Something</AppLabel>
+        <AppLabel>Post Something</AppLabel>
       </AppDiv>
       <Divider sx={{ my: 2 }} />
       <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-        <Avatar src="/avatar.svg" />
+        {/* <Avatar src="/avatar.svg" /> */}
         <TextField
           sx={{
             "& .MuiOutlinedInput-root": {
@@ -154,10 +143,20 @@ const PostCard = ({chnageFeedData,setChangeFeedData}) => {
             style={{ display: "none" }}
             onChange={handleImageChange}
           />
-          <img src={gallery} alt="gallery" style={{ cursor: "pointer", marginLeft: "10px" }} />
+          <img
+            src={gallery}
+            alt="gallery"
+            style={{ cursor: "pointer", marginLeft: "10px" }}
+          />
         </label>
 
-        <button disabled={loading} className={`${loading && "post-btndisable"} post-btn`} onClick={handleFile}>Post</button>
+        <button
+          disabled={loading}
+          className={`${loading && "post-btndisable"} post-btn`}
+          onClick={handleFile}
+        >
+          Post
+        </button>
       </AppDiv>
     </AppDiv>
   );
