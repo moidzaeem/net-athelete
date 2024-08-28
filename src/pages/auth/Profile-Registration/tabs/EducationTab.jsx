@@ -31,11 +31,13 @@ import useCrypto from "../../../../utils/hooks/encrypt";
 import { flexCol } from "../../../../utils/styles";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { format } from "date-fns";
 
 const EducationTab = () => {
   const { decryptedData } = useCrypto();
   const url = import.meta.env.VITE_BASE_URL;
   const [educationList, setEducationList] = React.useState([]);
+  const [eduDetailsId, setEduDetailsId] = React.useState();
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [educationFormData, setEducationFormData] = React.useState({
     degree_name: "",
@@ -143,6 +145,43 @@ const EducationTab = () => {
     }
   };
 
+  const handleUpdateEducationDetails = async (e) => {
+    e.preventDefault();
+    setIsUpdating(true);
+    console.log("updated is called...");
+    console.log("workExpFormData has: ", educationFormData);
+    try {
+      const token = decryptedData?.tokens?.access?.token;
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+      // console.log("work exp form data has: ", workExpFormData);
+      // console.log("url has: ", `${url}/work`);
+
+      console.log("url has: ", `${url}/edu/${eduDetailsId}`);
+
+      const response = await axios.patch(
+        `${url}/edu/${eduDetailsId}`,
+        educationFormData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+      } else {
+        throw new Error("Failed to Update Education Detail");
+      }
+    } catch (error) {
+      console.error("Error Updating Education Detail: ", error);
+      toast.error("Failed to Update Education Detail. Please try again.");
+    }
+    setIsUpdating(false);
+  };
+
   return (
     <Paper
       sx={{
@@ -199,7 +238,10 @@ const EducationTab = () => {
             }
 
             return (
-              <AppDiv sx={{ display: "flex", justifyContent: "space-between" }}>
+              <AppDiv
+                key={education.id}
+                sx={{ display: "flex", justifyContent: "space-between" }}
+              >
                 <AppDiv
                   sx={{ display: "flex", justifyContent: "space-between" }}
                 >
@@ -226,15 +268,16 @@ const EducationTab = () => {
                   <IconButton
                     onClick={() => {
                       setEducationFormData({
-                        // title: experience.title,
-                        // employment_type: experience.employment_type,
-                        // company: experience.company,
-                        // location: experience.location,
-                        // current_job: experience.current_job,
-                        // start_date: experience.start_date,
-                        // end_date: experience.end_date,
+                        degree_name: education.degree_name,
+                        institute: education.institute,
+                        current_institute: education.current_institute,
+                        from: education.from,
+                        type: education.type,
+                        to: education.to,
+                        major: education.major,
                       });
                       setIsUpdating(true);
+                      setEduDetailsId(education.id);
                     }}
                   >
                     <img src={edit} alt="" style={{ width: 20 }} />
@@ -256,7 +299,11 @@ const EducationTab = () => {
         <b>Add New Experience</b>
       </Appheading>
 
-      <form onSubmit={handleAddEducation}>
+      <form
+        onSubmit={
+          isUpdating ? handleUpdateEducationDetails : handleAddEducation
+        }
+      >
         {/* ----| School Name |---- */}
         <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
           <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
@@ -378,7 +425,12 @@ const EducationTab = () => {
               placeholder="Select Start Date"
               inputProps={{ style: { fontSize: 12 } }}
               variant="outlined"
-              value={educationFormData.from}
+              value={
+                educationFormData.from
+                  ? format(new Date(educationFormData.from), "yyyy-MM-dd")
+                  : ""
+              }
+              // value={educationFormData.from}
               onChange={(e) => handleChange("from", e.target.value)}
               sx={{ mt: 1.5 }}
             />
@@ -393,7 +445,12 @@ const EducationTab = () => {
               placeholder="Select End Date"
               inputProps={{ style: { fontSize: 12 } }}
               variant="outlined"
-              value={educationFormData.to}
+              value={
+                educationFormData.to
+                  ? format(new Date(educationFormData.to), "yyyy-MM-dd")
+                  : ""
+              }
+              // value={educationFormData.to}
               onChange={(e) => handleChange("to", e.target.value)}
               sx={{ mt: 1.5 }}
             />
@@ -419,4 +476,4 @@ const EducationTab = () => {
   );
 };
 
-export default EducationTab;
+export default EducationTab; // 480

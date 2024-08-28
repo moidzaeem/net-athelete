@@ -35,6 +35,7 @@ const WorkExpereinceTab = () => {
   const { decryptedData } = useCrypto();
   const url = import.meta.env.VITE_BASE_URL;
   const [workExp, setWorkExp] = React.useState([]);
+  const [workExpId, setWorkExpId] = React.useState();
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [workExpFormData, setWorkExpFormData] = React.useState({
     title: "",
@@ -154,12 +155,16 @@ const WorkExpereinceTab = () => {
       // console.log("work exp form data has: ", workExpFormData);
       // console.log("url has: ", `${url}/work`);
 
-      const response = await axios.patch(`${url}/work`, workExpFormData, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.patch(
+        `${url}/work/${workExpId}`,
+        workExpFormData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.status === 200) {
         toast.success(response.data.message);
       } else {
@@ -170,7 +175,7 @@ const WorkExpereinceTab = () => {
       toast.error("Failed to Update Work Experience. Please try again.");
     }
     setIsUpdating(false);
-  }; // update this please
+  };
 
   return (
     <Paper
@@ -230,7 +235,10 @@ const WorkExpereinceTab = () => {
             }
 
             return (
-              <AppDiv sx={{ display: "flex", justifyContent: "space-between" }}>
+              <AppDiv
+                key={experience.id}
+                sx={{ display: "flex", justifyContent: "space-between" }}
+              >
                 <AppDiv
                   sx={{ display: "flex", justifyContent: "space-between" }}
                 >
@@ -265,6 +273,7 @@ const WorkExpereinceTab = () => {
                         end_date: experience.end_date,
                       });
                       setIsUpdating(true);
+                      setWorkExpId(experience.id);
                     }}
                   >
                     <img src={edit} alt="" style={{ width: 20 }} />
@@ -285,7 +294,7 @@ const WorkExpereinceTab = () => {
         <b>Add New Experience</b>
       </Appheading>
 
-      <form onSubmit={setIsUpdating ? handleUpdateWorkExp : handleAddWorkExp}>
+      <form onSubmit={isUpdating ? handleUpdateWorkExp : handleAddWorkExp}>
         {/* ----| Work Title | ---- */}
         <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
           <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
@@ -458,4 +467,4 @@ const WorkExpereinceTab = () => {
   );
 };
 
-export default WorkExpereinceTab;
+export default WorkExpereinceTab; // 471
