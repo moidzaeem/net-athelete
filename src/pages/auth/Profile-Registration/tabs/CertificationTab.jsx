@@ -1,10 +1,13 @@
 import {
   Checkbox,
+  Divider,
   FormControlLabel,
   FormGroup,
   IconButton,
+  InputAdornment,
   Paper,
   Stack,
+  TextField,
 } from "@mui/material";
 import { Appcaption, Appfont, Appheading } from "../../../../utils/theme";
 import AppDiv from "../../../../components/atoms/AppDiv";
@@ -73,6 +76,20 @@ const CertificationTab = () => {
     getCertificationsList();
   }, [decryptedData, certificationsList]);
   // }, [decryptedData]);
+
+  const handleChange = (field, value) => {
+    setEducationFormData((prevData) => ({
+      ...prevData,
+      ...(field.includes(".")
+        ? {
+            [field.split(".")[0]]: {
+              ...prevData[field.split(".")[0]],
+              [field.split(".")[1]]: value,
+            },
+          }
+        : { [field]: value }),
+    }));
+  };
 
   return (
     <Paper
@@ -177,76 +194,158 @@ const CertificationTab = () => {
         })}
       </AppDiv>
 
-      <AppDiv height={30} />
-      <AppTextFeild
-        label={"Certifications Name"}
-        placeholder="Enter work title"
-        icon={doc}
-      />
-      <AppDiv height={30} />
-      <AppTextFeild
-        label={"Published By"}
-        placeholder="Enter employment type"
-        icon={buildings}
-      />
-      <AppDiv height={30} />
-      <AppTextFeild
-        label={"Location"}
-        placeholder="Enter your company name"
-        icon={location}
-      />
-      <AppDiv height={30} />
-      <AppDiv
-        sx={{
-          display: "flex",
-          alignItems: "end",
-          justifyContent: "space-between",
-          gap: 3,
-          flexDirection: {
-            md: "row",
-            xs: "column",
-          },
-        }}
-      >
-        <AppSelect
-          label="Start Date"
-          img={calendar}
-          iconStyle={{ width: "25px" }}
-          options={[{ label: "Select start date" }]}
-        />
-        <AppSelect
-          label="End Date"
-          img={calendar}
-          iconStyle={{ width: "25px" }}
-          options={[{ label: "Select end date" }]}
-        />
-      </AppDiv>
-      <AppDiv height={30} />
-      <FormGroup>
-        <FormControlLabel
-          control={<Checkbox color="success" />}
-          label="No expiration date"
-        />
-      </FormGroup>
-      <AppDiv height={30} />
-      <AppDiv
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-        }}
-      >
-        <Appheading
-          sx={{ fontFamily: "Poppins", fontWeight: 500, fontSize: 16, mb: 3 }}
-          htmlFor="text"
+      <Divider sx={{ my: 5 }} />
+
+      <Appheading sx={{ fontSize: 16, textAlign: "left" }}>
+        <b>Add New Certification</b>
+      </Appheading>
+
+      <form>
+        {/* ----| Certification Name |---- */}
+        <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
+          <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
+            Certification Name
+          </label>
+          <TextField
+            fullWidth
+            inputProps={{ style: { fontSize: 12 } }}
+            variant="outlined"
+            placeholder="Enter Certification Name"
+            sx={{ mt: 1.5 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <img src={doc} alt="icon" style={{ width: 25 }} />
+                </InputAdornment>
+              ),
+            }}
+            value={certificationFormData.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+          />
+        </AppDiv>
+        {/* ----| Published By |---- */}
+        <AppDiv sx={{ ...flexCol, mt: 3, width: "100%", alignItems: "start" }}>
+          <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
+            Published By
+          </label>
+          <TextField
+            fullWidth
+            inputProps={{ style: { fontSize: 12 } }}
+            variant="outlined"
+            placeholder="Enter Published By"
+            sx={{ mt: 1.5 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <img src={buildings} alt="icon" style={{ width: 25 }} />
+                </InputAdornment>
+              ),
+            }}
+            value={certificationFormData.published_by}
+            onChange={(e) => handleChange("name", e.target.value)}
+          />
+        </AppDiv>
+        {/* ----| Location |---- */}
+        <AppDiv sx={{ ...flexCol, mt: 3, width: "100%", alignItems: "start" }}>
+          <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
+            Location
+          </label>
+          <TextField
+            fullWidth
+            inputProps={{ style: { fontSize: 12 } }}
+            variant="outlined"
+            placeholder="Enter Location"
+            sx={{ mt: 1.5 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <img src={location} alt="icon" style={{ width: 25 }} />
+                </InputAdornment>
+              ),
+            }}
+            value={certificationFormData.location}
+            onChange={(e) => handleChange("location", e.target.value)}
+          />
+        </AppDiv>{" "}
+        <AppDiv
+          sx={{
+            mt: 3,
+            display: "flex",
+            alignItems: "center",
+            gap: 3,
+            flexDirection: { xs: "column", md: "row" },
+          }}
         >
-          Upload cv or project*
-        </Appheading>
-        <img src={dd} alt="" style={{ width: "100%" }} />
-      </AppDiv>
-      <AppDiv height={60} />
-      <AppDiv>
-        <Stack spacing={2} direction="row" justifyContent={"end"}>
+          {/* ----| Start Date |---- */}
+          <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
+            <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
+              Start Date
+            </label>
+            <TextField
+              fullWidth
+              type="date"
+              placeholder="Select Start Date"
+              inputProps={{ style: { fontSize: 12 } }}
+              variant="outlined"
+              value={
+                certificationFormData.start_date
+                  ? format(
+                      new Date(certificationFormData.start_date),
+                      "yyyy-MM-dd"
+                    )
+                  : ""
+              }
+              // value={educationFormData.from}
+              onChange={(e) => handleChange("start_date", e.target.value)}
+              sx={{ mt: 1.5 }}
+            />
+          </AppDiv>
+          {/* ----| End Date |---- */}
+          <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
+            <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
+              End Date
+            </label>
+            <TextField
+              fullWidth
+              type="date"
+              placeholder="Select End Date"
+              inputProps={{ style: { fontSize: 12 } }}
+              variant="outlined"
+              value={
+                certificationFormData.end_date
+                  ? format(
+                      new Date(certificationFormData.end_date),
+                      "yyyy-MM-dd"
+                    )
+                  : ""
+              }
+              onChange={(e) => handleChange("end_date", e.target.value)}
+              sx={{ mt: 1.5 }}
+            />
+          </AppDiv>
+        </AppDiv>
+        {/* ----| No Expiration |---- */}
+        <AppDiv sx={{ ...flexCol, mt: 3, width: "100%", alignItems: "start" }}>
+          <FormGroup>
+            <FormControlLabel
+              control={<Checkbox color="success" />}
+              label="No Expiration Date"
+              value={certificationFormData.no_expiration}
+              checked={certificationFormData.no_expiration}
+              onChange={(e) => handleChange("no_expiration", e.target.checked)}
+            />
+          </FormGroup>
+        </AppDiv>
+        {/* ----| Upload CV or Project |---- */}
+        <AppDiv sx={{ ...flexCol, mt: 3, width: "100%", alignItems: "start" }}>
+          <Appheading
+            sx={{ fontFamily: "Poppins", fontWeight: 500, fontSize: 16, mb: 3 }}
+            htmlFor="text"
+          >
+            Upload cv or project*
+          </Appheading>
+        </AppDiv>
+        <Stack direction="row" justifyContent={"end"} mt={8} gap={2}>
           <AppButton
             variant="contained"
             sx={{ backgroundColor: alpha, color: "#7F879E", width: 130 }}
@@ -256,11 +355,12 @@ const CertificationTab = () => {
           <AppButton
             sx={{ backgroundColor: beta, width: 130, color: "black" }}
             variant="contained"
+            type="submit"
           >
-            <b> Save Changes</b>
+            <b>{isUpdating ? "Update" : "Save Changes"}</b>
           </AppButton>
         </Stack>
-      </AppDiv>
+      </form>
     </Paper>
   );
 };

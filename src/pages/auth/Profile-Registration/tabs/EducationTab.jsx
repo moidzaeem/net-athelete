@@ -296,7 +296,7 @@ const EducationTab = () => {
       <Divider sx={{ my: 5 }} />
 
       <Appheading sx={{ fontSize: 16, textAlign: "left" }}>
-        <b>Add New Experience</b>
+        <b>Add New Education</b>
       </Appheading>
 
       <form
