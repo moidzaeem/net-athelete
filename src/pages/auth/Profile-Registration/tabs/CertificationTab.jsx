@@ -29,6 +29,9 @@ import { AppAvatar } from "../../../../components/atoms/AppAvatar";
 import education from "../../../../assets/svg/education.svg";
 import edit from "../../../../assets/svg/edit.svg";
 import trash from "../../../../assets/svg/trash.svg";
+import { format } from "date-fns";
+import UploadSvg from "../../../../assets/svg/UploadSvg";
+import { toast } from "react-toastify";
 
 const CertificationTab = () => {
   const { decryptedData } = useCrypto();
@@ -36,15 +39,75 @@ const CertificationTab = () => {
   const [certificationsList, setCertificationsList] = React.useState([]);
   const [certificationDetailsId, setCertificationId] = React.useState();
   const [isUpdating, setIsUpdating] = React.useState(false);
+  const [isUploadingFile, setIsUploadingFile] = React.useState(false);
+  const [selectedImage, setSelectedImage] = React.useState(null);
+  const [media, setMedia] = React.useState("");
   const [certificationFormData, setCertificationFormData] = React.useState({
     name: "",
     published_by: "",
     location: "",
     start_date: "",
     end_date: "",
-    no_expiration: "",
+    no_expiration: false,
     cv: "",
   });
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedImage(file);
+  };
+
+  const handleFileUpload = async () => {
+    setIsUploadingFile(true);
+    const url = import.meta.env.VITE_BASE_URL; // Assuming you are using Vite for environment variables
+
+    try {
+      const token = decryptedData.tokens.access.token; // Get JWT token from local storage
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+
+      const formData = new FormData();
+      formData.append("file", selectedImage);
+
+      const response = await axios.post(`${url}/user/upload-file`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status === 200) {
+        if (response.data.status !== 400) {
+          // setMedia(response.data.data.upload_link); // Set media state with the uploaded file link
+          setMedia(response.data.data.upload_link); // Set media state with the uploaded file link
+          // handleSubmit(); // Call handleSubmit after successful file upload
+        }
+        setIsUploadingFile(false);
+        toast.error(response.data.message); // Notify user of success or failure
+      } else {
+        throw new Error("Failed to upload file");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      setIsUploadingFile(false);
+      toast.error("Failed to upload file. Please try again."); // Notify user of failure
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setCertificationFormData((prevData) => ({
+      ...prevData,
+      ...(field.includes(".")
+        ? {
+            [field.split(".")[0]]: {
+              ...prevData[field.split(".")[0]],
+              [field.split(".")[1]]: value,
+            },
+          }
+        : { [field]: value }),
+    }));
+  };
 
   React.useEffect(() => {
     const getCertificationsList = async () => {
@@ -74,21 +137,67 @@ const CertificationTab = () => {
       }
     };
     getCertificationsList();
-  }, [decryptedData, certificationsList]);
-  // }, [decryptedData]);
+  }, [decryptedData]);
+  // }, [decryptedData, certificationsList]);
 
-  const handleChange = (field, value) => {
-    setEducationFormData((prevData) => ({
-      ...prevData,
-      ...(field.includes(".")
-        ? {
-            [field.split(".")[0]]: {
-              ...prevData[field.split(".")[0]],
-              [field.split(".")[1]]: value,
-            },
-          }
-        : { [field]: value }),
-    }));
+  const handleDeleteCertification = async (certificationId) => {
+    try {
+      const token = decryptedData?.tokens?.access?.token;
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+
+      const response = await axios.delete(
+        `${url}/certification/${certificationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        setCertificationFormData((prevCertification) =>
+          prevCertification.filter(
+            (certification) => certification.id !== certificationId
+          )
+        );
+        toast.success("Certification Deleted Successfully.");
+      } else {
+        throw new Error("Failed to delete Certification");
+      }
+    } catch (error) {
+      console.error("Error deleting Certification:", error);
+    }
+  };
+
+  const handleAddCertification = async (e) => {
+    e.preventDefault();
+    // console.log("add is called...");
+    // console.log("workExpFormData has: ", educationFormData);
+    try {
+      const token = decryptedData?.tokens?.access?.token;
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+      const response = await axios.post(
+        `${url}/certification`,
+        certificationFormData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+      } else {
+        throw new Error("Failed to Add Certification");
+      }
+    } catch (error) {
+      console.error("Error adding Certification: ", error);
+      toast.error("Failed to Add Certification. Please try again.");
+    }
   };
 
   return (
@@ -184,7 +293,7 @@ const CertificationTab = () => {
                   <img src={edit} alt="" style={{ width: 20 }} />
                 </IconButton>
                 <IconButton
-                // onClick={() => handleDeleteEducation(education.id)}
+                  onClick={() => handleDeleteCertification(certification.id)}
                 >
                   <img src={trash} alt="" style={{ width: 20 }} />
                 </IconButton>
@@ -242,7 +351,7 @@ const CertificationTab = () => {
               ),
             }}
             value={certificationFormData.published_by}
-            onChange={(e) => handleChange("name", e.target.value)}
+            onChange={(e) => handleChange("published_by", e.target.value)}
           />
         </AppDiv>
         {/* ----| Location |---- */}
@@ -338,12 +447,37 @@ const CertificationTab = () => {
         </AppDiv>
         {/* ----| Upload CV or Project |---- */}
         <AppDiv sx={{ ...flexCol, mt: 3, width: "100%", alignItems: "start" }}>
-          <Appheading
-            sx={{ fontFamily: "Poppins", fontWeight: 500, fontSize: 16, mb: 3 }}
-            htmlFor="text"
+          <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
+            Upload cv or project
+          </label>
+          <label
+            htmlFor="upload-certificate"
+            className="mt-3.5 bg-[#FFF6F6] w-full flex flex-col items-center py-8 text-[#7F879E] rounded-xl border-2 border-[#F83C4D] border-dashed cursor-pointer"
           >
-            Upload cv or project*
-          </Appheading>
+            <UploadSvg className="group-hover:text-primary h-9 stroke-current w-9" />
+            <p className="mt-3">
+              Drag or{" "}
+              <span
+                className="text-[#F83C4D] text-sm font-normal"
+                style={{ fontFamily: "Poppins" }}
+              >
+                upload
+              </span>{" "}
+              project files
+            </p>
+            <input
+              disabled={isUploadingFile}
+              type="file"
+              multiple={false}
+              id="upload-certificate"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+
+          <button type="button" onClick={handleFileUpload}>
+            upload file
+          </button>
         </AppDiv>
         <Stack direction="row" justifyContent={"end"} mt={8} gap={2}>
           <AppButton
