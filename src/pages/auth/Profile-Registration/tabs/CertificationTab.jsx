@@ -37,7 +37,7 @@ const CertificationTab = () => {
   const { decryptedData } = useCrypto();
   const url = import.meta.env.VITE_BASE_URL;
   const [certificationsList, setCertificationsList] = React.useState([]);
-  const [certificationDetailsId, setCertificationId] = React.useState();
+  const [certificationId, setCertificationId] = React.useState();
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [isUploadingFile, setIsUploadingFile] = React.useState(false);
   const [selectedImage, setSelectedImage] = React.useState(null);
@@ -52,17 +52,15 @@ const CertificationTab = () => {
     cv: "",
   });
 
-  const handleFileChange = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
-  };
 
-  const handleFileUpload = async () => {
     setIsUploadingFile(true);
-    const url = import.meta.env.VITE_BASE_URL; // Assuming you are using Vite for environment variables
+    const url = import.meta.env.VITE_BASE_URL;
 
     try {
-      const token = decryptedData.tokens.access.token; // Get JWT token from local storage
+      const token = decryptedData.tokens.access.token;
       if (!token) {
         throw new Error("No token found in local storage");
       }
@@ -79,19 +77,18 @@ const CertificationTab = () => {
 
       if (response.status === 200) {
         if (response.data.status !== 400) {
-          // setMedia(response.data.data.upload_link); // Set media state with the uploaded file link
-          setMedia(response.data.data.upload_link); // Set media state with the uploaded file link
-          // handleSubmit(); // Call handleSubmit after successful file upload
+          setMedia(response.data.data.upload_link);
         }
         setIsUploadingFile(false);
-        toast.error(response.data.message); // Notify user of success or failure
+
+        toast.success(response.data.message);
       } else {
         throw new Error("Failed to upload file");
       }
     } catch (error) {
       console.error("Error uploading file:", error);
       setIsUploadingFile(false);
-      toast.error("Failed to upload file. Please try again."); // Notify user of failure
+      toast.error("Failed to upload file. Please try again.");
     }
   };
 
@@ -156,7 +153,7 @@ const CertificationTab = () => {
         }
       );
       if (response.status === 200) {
-        setCertificationFormData((prevCertification) =>
+        setCertificationsList((prevCertification) =>
           prevCertification.filter(
             (certification) => certification.id !== certificationId
           )
@@ -181,7 +178,7 @@ const CertificationTab = () => {
       }
       const response = await axios.post(
         `${url}/certification`,
-        certificationFormData,
+        { ...certificationFormData, cv: media },
         {
           headers: {
             "Content-Type": "application/json",
@@ -197,6 +194,37 @@ const CertificationTab = () => {
     } catch (error) {
       console.error("Error adding Certification: ", error);
       toast.error("Failed to Add Certification. Please try again.");
+    }
+  };
+
+  const handleUpdateCertification = async (e) => {
+    e.preventDefault();
+    setIsUpdating(true);
+
+    console.log("updated is called...");
+    try {
+      const token = decryptedData?.tokens?.access?.token;
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+      const response = await axios.patch(
+        `${url}/certification/${certificationId}`,
+        certificationFormData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+      } else {
+        throw new Error("Failed to Update Certification Detail");
+      }
+    } catch (error) {
+      console.error("Error Updating Certification Detail: ", error);
+      toast.error("Failed to Update Certification Detail. Please try again.");
     }
   };
 
@@ -309,7 +337,11 @@ const CertificationTab = () => {
         <b>Add New Certification</b>
       </Appheading>
 
-      <form>
+      <form
+        onSubmit={
+          isUpdating ? handleUpdateCertification : handleAddCertification
+        }
+      >
         {/* ----| Certification Name |---- */}
         <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
           <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
@@ -470,14 +502,14 @@ const CertificationTab = () => {
               type="file"
               multiple={false}
               id="upload-certificate"
-              onChange={handleFileChange}
+              onChange={handleFileUpload} // onChange={handleFileChange}
               className="hidden"
             />
           </label>
-
+          {/* {media}
           <button type="button" onClick={handleFileUpload}>
             upload file
-          </button>
+          </button> */}
         </AppDiv>
         <Stack direction="row" justifyContent={"end"} mt={8} gap={2}>
           <AppButton
