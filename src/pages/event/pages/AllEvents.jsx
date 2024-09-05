@@ -12,17 +12,83 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import ShareIcon from "@mui/icons-material/Share";
 import { secondary } from "../../../utils/theme/colors";
 import PlaceIcon from "@mui/icons-material/Place";
+import React from "react";
+import useCrypto from "../../../utils/hooks/encrypt";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const AllEvents = ({ setshowEvents }) => {
+  const { decryptedData } = useCrypto();
+  const url = import.meta.env.VITE_BASE_URL;
+
   const [sortBy, setSortBy] = useState("");
+  const [allEventsList, setAllEventsList] = useState([]);
 
   const handleChange = (event) => {
     setSortBy(event.target.value);
     // You can perform sorting logic here based on the selected value
   };
 
+  React.useEffect(() => {
+    const getAllEvents = async () => {
+      try {
+        const token = decryptedData?.tokens?.access?.token;
+        if (!token) {
+          throw new Error("No token found in local storage");
+        }
+
+        const response = await axios.get(`${url}/event`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.status === 200) {
+          setAllEventsList(response.data.data.result);
+        } else {
+          throw new Error("Failed to fetch user profile data");
+        }
+      } catch (error) {
+        console.error("Error fetching user profile data:", error);
+      }
+    };
+    getAllEvents();
+  }, [decryptedData]);
+
+  console.log("allEventsList hass: ", allEventsList);
+
+  const handleFollowEvent = async (eventId) => {
+    console.log("calledddd", eventId);
+    try {
+      const token = decryptedData?.tokens?.access?.token;
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+      console.log("eventId ", eventId);
+      const response = await axios.post(
+        `${url}/event/follow`,
+        { event_id: eventId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("response has: ", response);
+
+      if (response.status === 200) {
+        toast.success(response.data.message);
+      } else {
+        throw new Error("Failed to Follow Event");
+      }
+    } catch (error) {
+      console.error("Error following Event: ", error);
+      toast.error("Failed to follow Event. Please try again.");
+    }
+  };
+
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} mt={5.5}>
       <Grid item xs={12} md={2.5}>
         <AppDiv
           sx={{
@@ -49,7 +115,6 @@ const AllEvents = ({ setshowEvents }) => {
               xs: "space-around",
             },
             width: {
-              lg: "60%",
               xs: "100%",
             },
             mt: 5,
@@ -82,11 +147,14 @@ const AllEvents = ({ setshowEvents }) => {
           </Select>
         </AppDiv>
         {/* card */}
-        {[1, 2, 3, 4, 5, 6].map((items) => {
+        {allEventsList.map((event, index) => {
+          const startDate = new Date(event.start_date);
+          const month = startDate.toLocaleString("default", { month: "long" });
+          const date = startDate.getDate();
           return (
             <AppDiv
-              onClick={() => setshowEvents("eventcalender")}
-              key={items}
+              // onClick={() => setshowEvents("eventcalender")}
+              key={index}
               sx={{
                 display: "flex",
                 mt: 3,
@@ -100,9 +168,10 @@ const AllEvents = ({ setshowEvents }) => {
                 },
                 flexWrap: "wrap",
                 cursor: "pointer",
+                border: "2px solid transparent",
                 backgroundColor: "white",
                 ":hover": {
-                  backgroundColor: "",
+                  backgroundColor: "#FFFCF3",
                   border: "2px solid #FFC542",
                 },
               }}
@@ -124,11 +193,11 @@ const AllEvents = ({ setshowEvents }) => {
                 />
                 <AppDiv sx={{ ml: 2 }}>
                   <Appfont sx={{ textAlign: "left" }}>
-                    <b>Indonesia Creative Job Fair 2019</b>{" "}
+                    <b>{event.name}</b>
                   </Appfont>
                   <AppDiv sx={{ display: "flex", mt: 1, mb: 1 }}>
                     <Appfont> Grand Sarila Hotel</Appfont>
-                    <Appcaption sx={{ ml: 1 }}>Jakarta, Indonesia</Appcaption>
+                    <Appcaption sx={{ ml: 1 }}>{event.location}</Appcaption>
                     <PlaceIcon fontSize="small" sx={{ ml: 1 }} />
                   </AppDiv>
                   <AppDiv sx={{ display: "flex" }}>
@@ -153,7 +222,7 @@ const AllEvents = ({ setshowEvents }) => {
                     color: secondary,
                   }}
                 >
-                  APR
+                  {month}
                 </Appfont>
                 <Appfont
                   sx={{
@@ -167,16 +236,19 @@ const AllEvents = ({ setshowEvents }) => {
                     mt: 2,
                   }}
                 >
-                  <b> 27</b>
+                  <b>{date}</b>
                 </Appfont>
                 <AppButton
                   sx={{ backgroundColor: "#F83C4D", width: 100 }}
                   variant="contained"
                   color="error"
+                  onClick={() => handleFollowEvent(event.id)}
                 >
                   Follow
                 </AppButton>
-                <AppIconButton sx={{ border: "1px solid #E2E2EA", mr: 1, ml: 1 }}>
+                <AppIconButton
+                  sx={{ border: "1px solid #E2E2EA", mr: 1, ml: 1 }}
+                >
                   <BookmarkIcon fontSize="small" />
                 </AppIconButton>
                 <AppIconButton sx={{ border: `1px solid #E2E2EA` }}>

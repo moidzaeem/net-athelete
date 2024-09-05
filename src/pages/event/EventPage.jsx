@@ -6,7 +6,9 @@ const EventPage = () => {
   const [showEvents, setshowEvents] = useState("allevents");
   return (
     <div>
-      {showEvents === "allevents" && <AllEvents setshowEvents={setshowEvents} />}
+      {showEvents === "allevents" && (
+        <AllEvents setshowEvents={setshowEvents} />
+      )}
       {showEvents === "eventcalender" && <EventCalender />}
     </div>
   );

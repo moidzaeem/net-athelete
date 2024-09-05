@@ -11,7 +11,7 @@ import NetworkModal from "../components/Modal";
 // eslint-disable-next-line react/prop-types
 const NetworkGroups = ({ setShowNetwork }) => {
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} mt={5.5}>
       {/* left */}
       <Grid item xs={12} md={9.5}>
         {/* twin navbar */}
