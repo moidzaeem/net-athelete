@@ -8,6 +8,7 @@ import NotFoundPage from "../pages/404";
 import ResourcePage from "../pages/resource/ResourcePage";
 import MarketPage from "../pages/market/MarketPage";
 import EventPage from "../pages/event/EventPage";
+import SingleEventPage from "../pages/event/pages/SingleEventPage";
 
 const PrivateRoutes = () => {
   console.log("Private Routes Started");
@@ -59,6 +60,15 @@ const PrivateRoutes = () => {
           element={
             <AppLayoutSm pr={false} pt={false}>
               <EventPage />
+            </AppLayoutSm>
+          }
+        />
+        <Route
+          exact
+          path={`${RoutePath.EVENT}/:id`}
+          element={
+            <AppLayoutSm pr={false} pt={false}>
+              <SingleEventPage />
             </AppLayoutSm>
           }
         />

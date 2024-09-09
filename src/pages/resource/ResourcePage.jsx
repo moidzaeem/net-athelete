@@ -15,12 +15,44 @@ import Courses from "./tabs/Courses";
 import Articles from "./tabs/Articles";
 import Webinars from "./tabs/Webinars";
 import ResourceModal from "./components/modal";
+import ResourcesList from "./tabs/ResourcesList";
+import useCrypto from "../../../src/utils/hooks/encrypt";
+import React from "react";
+import axios from "axios";
 
 const pages = ["all", "courses", "articles", "webinars"];
 
 const ResourcePage = () => {
-  const [sortBy, setSortBy] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
+  const { decryptedData } = useCrypto();
+  const url = import.meta.env.VITE_BASE_URL;
+
+  const [allResourcesList, setAllResourcesList] = React.useState([]);
+  const [sortBy, setSortBy] = React.useState("");
+  const [activeTab, setActiveTab] = React.useState("all");
+
+  React.useEffect(() => {
+    const getAllResources = async () => {
+      try {
+        const token = decryptedData?.tokens?.access?.token;
+        if (!token) {
+          throw new Error("No token found in local storage");
+        }
+        const response = await axios.get(`${url}/resource`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.status === 200) {
+          setAllResourcesList(response.data.data.result);
+        } else {
+          throw new Error("Failed to fetch Resources");
+        }
+      } catch (error) {
+        console.error("Error fetching Resources:", error);
+      }
+    };
+    getAllResources();
+  }, [decryptedData]);
 
   const handleChange = (event) => {
     setSortBy(event.target.value);
@@ -57,13 +89,20 @@ const ResourcePage = () => {
             lg: "hidden",
             xs: "scroll",
           },
+          px: { lg: 3 },
         }}
       >
         <AppDiv sx={{ display: "flex", alignItems: "center" }}>
           <AppSearchBar />
           <ResourceModal />
         </AppDiv>
-        <AppDiv sx={{ flexGrow: 4, display: { xs: "flex", lg: "flex" }, justifyContent: "center" }}>
+        <AppDiv
+          sx={{
+            flexGrow: 4,
+            display: { xs: "flex", lg: "flex" },
+            justifyContent: "center",
+          }}
+        >
           {pages.map((page, index) => (
             <Appfont
               key={index}
@@ -133,7 +172,10 @@ const ResourcePage = () => {
             >
               <img src={horizatalthreelines} alt="" width={16} />
             </AppButton>
-            <AppButton size="small" sx={{ border: "1px solid #dcdcdd", borderRadius: 0 }}>
+            <AppButton
+              size="small"
+              sx={{ border: "1px solid #dcdcdd", borderRadius: 0 }}
+            >
               <img src={verticalthreeline} alt="" width={16} />
             </AppButton>
             <AppButton
@@ -150,7 +192,9 @@ const ResourcePage = () => {
         </AppDiv>
       </AppDiv>
       {/* Render content based on activeTab */}
-      {activeTab === "all" && <All />}
+      {activeTab === "all" && (
+        <ResourcesList allResourcesList={allResourcesList} />
+      )}
       {activeTab === "courses" && <Courses />}
       {activeTab === "articles" && <Articles />}
       {activeTab === "webinars" && <Webinars />}

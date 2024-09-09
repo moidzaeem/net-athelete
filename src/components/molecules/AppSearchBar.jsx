@@ -11,7 +11,7 @@ const Search = styled("div")(({ theme }) => ({
   marginLeft: 0,
   width: "100%",
   [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(1),
+    // marginLeft: theme.spacing(1),
     width: "auto",
   },
   color: "#92929D",
@@ -30,7 +30,7 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   fontSize: 6,
 }));
 
-const AppSearchBar = ({ w1 = "6ch", w2 = "15ch" }) => {
+const AppSearchBar = ({ w1 = "115px", w2 = "190px" }) => {
   const StyledInputBase = styled(InputBase)(({ theme }) => ({
     color: "black",
     width: "100%",
@@ -49,15 +49,15 @@ const AppSearchBar = ({ w1 = "6ch", w2 = "15ch" }) => {
     fontFamily: "Poppins",
   }));
   return (
-    <div>
-      {/* search */}
-      <Search>
-        <SearchIconWrapper>
-          <img src={searchIcon} width={20} alt="" />
-        </SearchIconWrapper>
-        <StyledInputBase placeholder="Find" inputProps={{ "aria-label": "search" }} />
-      </Search>
-    </div>
+    <Search>
+      <SearchIconWrapper>
+        <img src={searchIcon} width={20} alt="" />
+      </SearchIconWrapper>
+      <StyledInputBase
+        placeholder="Find"
+        inputProps={{ "aria-label": "search" }}
+      />
+    </Search>
   );
 };
 
