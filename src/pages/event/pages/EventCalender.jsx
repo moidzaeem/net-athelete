@@ -48,14 +48,29 @@ const EventCalendar = () => {
             },
           }}
         >
-          <AppDiv sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Appheading sx={{ textAlign: "left", width: 210 }}>Weekly Calendar</Appheading>
+          <AppDiv
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Appheading sx={{ textAlign: "left", width: 210 }}>
+              Weekly Calendar
+            </Appheading>
             <AppSearchBar />
           </AppDiv>
           <AppDiv
-            sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: 4 }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mt: 4,
+            }}
           >
-            <Appfont sx={{ textAlign: "left", fontSize: 18, color: gamma }}>April 2024</Appfont>
+            <Appfont sx={{ textAlign: "left", fontSize: 18, color: gamma }}>
+              April 2024
+            </Appfont>
             <AppDiv sx={{ display: "flex" }}>
               <WestIcon sx={{ color: gamma }} />
               <EastIcon sx={{ ml: 2, color: gamma }} />
@@ -102,7 +117,9 @@ const EventCalendar = () => {
               flexWrap: "wrap",
             }}
           >
-            <Appheading sx={{ textAlign: "left", width: 210 }}>Today’s Event</Appheading>
+            <Appheading sx={{ textAlign: "left", width: 210 }}>
+              Today’s Event
+            </Appheading>
           </AppDiv>
           {/* the card */}
           {[1, 2, 3].map((items) => {
@@ -143,8 +160,13 @@ const EventCalendar = () => {
                       Indonesia Creative Job Fair 2019
                     </Appfont>
                     <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-                      <RoomIcon sx={{ color: "grey", ml: 1 }} fontSize="small" />
-                      <Appfont sx={{ mr: 1, ml: 1 }}>Grand Sarila Hotel</Appfont>
+                      <RoomIcon
+                        sx={{ color: "grey", ml: 1 }}
+                        fontSize="small"
+                      />
+                      <Appfont sx={{ mr: 1, ml: 1 }}>
+                        Grand Sarila Hotel
+                      </Appfont>
                       <Appcaption>Jakarta, Indonesia</Appcaption>
                     </AppDiv>
                   </AppDiv>
@@ -182,11 +204,17 @@ const EventCalendar = () => {
             <EventModal />
           </AppDiv>
           <AppDiv>
-            <Calendar style={{ width: "100%" }} onChange={onChange} value={value} />
+            <Calendar
+              style={{ width: "100%" }}
+              onChange={onChange}
+              value={value}
+            />
           </AppDiv>
           {/* second box */}
           <AppDiv sx={{ ...alingItem, mt: 10 }}>
-            <Appheading sx={{ textAlign: "left", width: 210 }}>Events to Come</Appheading>
+            <Appheading sx={{ textAlign: "left", width: 210 }}>
+              Events to Come
+            </Appheading>
             <Select
               value={sortBy}
               onChange={handleChange}
@@ -258,14 +286,18 @@ const EventCalendar = () => {
                       </Appfont>
                       <AppDiv sx={{ display: "flex", mt: 1, mb: 1 }}>
                         <Appfont> Grand Sarila Hotel</Appfont>
-                        <Appcaption sx={{ ml: 1 }}>Jakarta, Indonesia</Appcaption>
+                        <Appcaption sx={{ ml: 1 }}>
+                          Jakarta, Indonesia
+                        </Appcaption>
                         <PlaceIcon fontSize="small" sx={{ ml: 1 }} />
                       </AppDiv>
                       <AppDiv sx={{ display: "flex" }}>
                         <img src="/Member.svg" alt="" />
                         <Appcaption sx={{ ml: 2 }}>5 Friends Join</Appcaption>
                       </AppDiv>
-                      <AppDiv sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                      <AppDiv
+                        sx={{ display: "flex", alignItems: "center", mt: 1 }}
+                      >
                         <Appcaption>E-commerce, Design</Appcaption>
                         <Appcaption sx={{ ml: 2 }}>
                           <b>158</b>
@@ -306,7 +338,9 @@ const EventCalendar = () => {
                     >
                       Follow
                     </AppButton>
-                    <AppIconButton sx={{ border: "1px solid #E2E2EA", mr: 1, ml: 1 }}>
+                    <AppIconButton
+                      sx={{ border: "1px solid #E2E2EA", mr: 1, ml: 1 }}
+                    >
                       <BookmarkIcon fontSize="small" />
                     </AppIconButton>
                     <AppIconButton sx={{ border: `1px solid #E2E2EA` }}>

@@ -6,12 +6,18 @@ import { Select } from "@mui/material";
 import AppDiv from "../../../components/atoms/AppDiv";
 import { Appcaption, Appfont, Appheading } from "../../../utils/theme";
 import AppSearchBar from "../../../components/molecules/AppSearchBar";
-import { AppButton } from "../../../components/atoms/AppButton";
+// import { AppButton } from "../../../components/atoms/AppButton";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+// import {
+//   ArrowDownward,
+//   ArrowDropDown,
+//   ArrowDropDownSharp,
+// } from "@mui/icons-material";
+import React from "react";
 
 const options = [
   {
@@ -23,10 +29,22 @@ const options = [
 ];
 
 const SearchSidebar = () => {
+  const [selectedLocationRange, setSelectedLocationRange] = React.useState("");
+
+  const handleLocationRangeChange = (value) => {
+    setSelectedLocationRange(value);
+  };
+
   return (
-    <div>
+    <div className="fixed mt-8">
       <AppDiv
-        sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 3 }}
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          // mt: 3,
+          // mt: 4,
+        }}
       >
         <Appheading>Search Filter</Appheading>
         <KeyboardArrowLeftIcon color="primary" />
@@ -34,6 +52,12 @@ const SearchSidebar = () => {
       <AppDiv height={20} />
       <AppSearchBar />
       <AppDiv height={20} />
+      <div className="mb-2 flex justify-between items-center">
+        <p className="text-xs uppercase text-[#92929D] font-poppins font-medium">
+          Categories
+        </p>
+        <KeyboardArrowDownIcon />
+      </div>
       <FormControl variant="standard" fullWidth>
         <InputLabel>
           <Appcaption sx={{ fontSize: 15 }}>{"Pick from list"}</Appcaption>
@@ -41,23 +65,41 @@ const SearchSidebar = () => {
         <Select>
           {options?.map((option, index) => (
             <MenuItem key={index} value={option.label}>
-              <Appcaption sx={{ color: "black", textAlign: "left" }}>{option.label}</Appcaption>
+              <Appcaption sx={{ color: "black", textAlign: "left" }}>
+                {option.label}
+              </Appcaption>
             </MenuItem>
           ))}
         </Select>
       </FormControl>
-      <AppDiv
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mt: 3,
-          mb: 3,
-        }}
-      >
-        <Appfont sx={{ color: "grey", fontSize: 14 }}>Additional Requirrements</Appfont>
+
+      <div className="mt-7.5 mb-2 flex justify-between items-center">
+        <p className="text-xs uppercase text-[#92929D] font-poppins font-medium">
+          Company
+        </p>
         <KeyboardArrowDownIcon />
-      </AppDiv>
+      </div>
+      <FormControl variant="standard" fullWidth>
+        <InputLabel>
+          <Appcaption sx={{ fontSize: 15 }}>Adding a company</Appcaption>
+        </InputLabel>
+        <Select>
+          {options?.map((option, index) => (
+            <MenuItem key={index} value={option.label}>
+              <Appcaption sx={{ color: "black", textAlign: "left" }}>
+                {option.label}
+              </Appcaption>
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <div className="mt-7.5 mb-2 flex justify-between items-center">
+        <p className="text-xs uppercase text-[#92929D] font-poppins font-medium">
+          Additional Requirements
+        </p>
+        <KeyboardArrowDownIcon />
+      </div>
       <FormGroup>
         <FormControlLabel
           control={<Checkbox color="success" size="small" defaultChecked />}
@@ -74,10 +116,45 @@ const SearchSidebar = () => {
           label="Marriage"
         />
       </FormGroup>
-      <ButtonGroup fullWidth variant="contained" aria-label="Basic button group" sx={{ mt: 4 }}>
-        <AppButton>0-5 </AppButton>
-        <AppButton>6-20 </AppButton>
-        <AppButton>20-50 </AppButton>
+
+      <p className="mt-7.5 mb-2 text-xs uppercase text-[#92929D] font-poppins font-medium">
+        Location Range
+      </p>
+      <ButtonGroup
+        fullWidth
+        variant="contained"
+        className="!w-auto !rounded-lg !bg-[#F1F1F5] !shadow-none"
+      >
+        <div
+          className={`py-1 px-3 rounded-lg ${
+            selectedLocationRange === 5
+              ? "bg-[#27CEF8] text-white"
+              : "bg-transparent text-[#44444F]"
+          }`}
+          onClick={() => handleLocationRangeChange(5)}
+        >
+          0-5 KM
+        </div>
+        <button
+          className={`py-1 px-3 rounded-lg ${
+            selectedLocationRange === 20
+              ? "bg-[#27CEF8] text-white"
+              : "bg-transparent text-[#44444F]"
+          }`}
+          onClick={() => handleLocationRangeChange(20)}
+        >
+          6-20 KM
+        </button>
+        <div
+          className={`py-1 px-3 rounded-lg ${
+            selectedLocationRange === 50
+              ? "bg-[#27CEF8] text-white"
+              : "bg-transparent text-[#44444F]"
+          }`}
+          onClick={() => handleLocationRangeChange(50)}
+        >
+          20-50 KM
+        </div>
       </ButtonGroup>
     </div>
   );

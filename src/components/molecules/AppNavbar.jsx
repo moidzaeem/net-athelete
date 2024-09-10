@@ -36,7 +36,7 @@ function AppNavbar() {
   return (
     <AppBar
       sx={{ background: "white", borderBottom: "1px solid #E2E2EA" }}
-      position="static"
+      position="fixed"
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters style={{ justifyContent: "space-evenly" }}>
