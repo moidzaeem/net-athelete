@@ -46,20 +46,20 @@ const NetworkGroups = ({ setShowNetwork }) => {
         {/* cards started */}
         <SuggestedGroupCard setShowNetwork={setShowNetwork} />
         <AppDiv height={20} />
-        <StickerCard />
+        {/* <StickerCard /> */}
         {/* friends */}
-        <Appheading sx={{ textAlign: "left" }}>Friends List</Appheading>
+        {/* <Appheading sx={{ textAlign: "left" }}>Friends List</Appheading>
         <AppDiv height={20} />
-        <FriendListCard />
+        <FriendListCard /> */}
 
         <AppDiv height={60} />
       </Grid>
       {/* right */}
-      <Grid item xs={12} md={2.5}>
+      {/* <Grid item xs={12} md={2.5}>
         <AppDiv>
           <FriendsSidebar />
         </AppDiv>
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 };

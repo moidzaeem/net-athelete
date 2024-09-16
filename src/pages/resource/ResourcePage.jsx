@@ -144,7 +144,7 @@ const ResourcePage = () => {
             </Appfont>
           ))}
         </AppDiv>
-        <AppDiv sx={{ display: "flex", alignItems: "center" }}>
+        {/* <AppDiv sx={{ display: "flex", alignItems: "center" }}>
           <AppIconButton sx={{ border: "1px solid #dcdcdd" }}>
             <img src={filterIcon} alt="" width={20} />
           </AppIconButton>
@@ -170,7 +170,6 @@ const ResourcePage = () => {
             <MenuItem sx={{ fontSize: 12 }} value="popularity">
               Popularity
             </MenuItem>
-            {/* Add more sorting options here if needed */}
           </Select>
           <AppDiv
             sx={{
@@ -208,7 +207,7 @@ const ResourcePage = () => {
               <img src={boxes} alt="" width={16} />
             </AppButton>
           </AppDiv>
-        </AppDiv>
+        </AppDiv> */}
       </AppDiv>
       {/* Render content based on activeTab */}
       {activeTab === "all" && (

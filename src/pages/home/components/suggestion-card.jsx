@@ -25,7 +25,7 @@ const SuggestionCard = () => {
         }}
       >
         <AppLabel>Suggested Pages</AppLabel>
-        <AppButton
+        {/* <AppButton
           sx={{
             background: "#F4FDFF",
             color: "#27CEF8",
@@ -34,7 +34,7 @@ const SuggestionCard = () => {
           color="primary"
         >
           See All
-        </AppButton>{" "}
+        </AppButton>{" "} */}
       </AppDiv>
       <Divider sx={{ my: 2 }} />
       {/* three dot end */}

@@ -75,7 +75,7 @@ const WorkExpereinceTab = () => {
       }
     };
     getWorkExp();
-  }, [decryptedData, workExp]);
+  }, [decryptedData]);
 
   const handleDeleteWorkExp = async (expId) => {
     try {

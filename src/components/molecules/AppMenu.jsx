@@ -3,9 +3,12 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { AppAvatar } from "../atoms/AppAvatar";
 import { toast } from "react-toastify";
+import { Link, useNavigate } from "react-router-dom";
+import userPng from "../../assets/images/user.png";
 
 export default function AppMenu() {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const navigate = useNavigate();
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -18,8 +21,12 @@ export default function AppMenu() {
     localStorage.removeItem("auth");
     toast.success("Logout successfully");
     setTimeout(() => {
-      window.location.reload();
+      navigate("/login"); 
     }, 1000);
+  };
+
+  const handleProfile = () => {
+    navigate("/profile-registration"); 
   };
   return (
     <div>
@@ -27,7 +34,7 @@ export default function AppMenu() {
         onClick={handleClick}
         alt="Remy Sharp"
         src={
-          "https://img.lovepik.com/free-png/20210923/lovepik-cute-girl-avatar-png-image_401231841_wh1200.png"
+          userPng
         }
       />
       <Menu
@@ -39,6 +46,7 @@ export default function AppMenu() {
           "aria-labelledby": "basic-button",
         }}
       >
+         <MenuItem onClick={handleProfile}>Profile</MenuItem>
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
     </div>

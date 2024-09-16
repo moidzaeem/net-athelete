@@ -23,13 +23,13 @@ const EventCard = () => {
           throw new Error("No token found in local storage");
         }
 
-        const response = await axios.get(`${url}/event`, {
+        const response = await axios.get(`${url}/event/get-all-events`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         if (response.status === 200) {
-          setAllEventsList(response.data.data.result);
+          setAllEventsList(response.data.data);
         } else {
           throw new Error("Failed to fetch user profile data");
         }
@@ -78,9 +78,10 @@ const EventCard = () => {
               <img src={calendericon} />
               <AppLabel>{event.name}</AppLabel>
             </div>
-            <p className="text-xs text-[#000000e6] font-medium">
+            {/* <br /> */}
+            {/* <p className="text-xs text-[#000000e6] font-medium">
               {formattedStartDate}
-            </p>
+            </p> */}
           </AppDiv>
         );
       })}

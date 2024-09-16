@@ -15,16 +15,13 @@ import {
   TextField,
 } from "@mui/material";
 import { Appcaption, Appheading } from "../../../utils/theme";
-import AppSelect from "../../../components/molecules/AppSelect";
-import doc from "../../../assets/red-svgs/doc.svg";
-import AppTextFeild from "../../../components/molecules/AppTextFeild";
-import usersIcon from "../../../assets/red-svgs/users-group.svg";
-import dd from "../../../assets/red-svgs/Drag & Drop Area.svg";
-import list from "../../../assets/red-svgs/list.svg";
 import UploadSvg from "../../../assets/svg/UploadSvg";
 import useCrypto from "../../../utils/hooks/encrypt";
 import { toast } from "react-toastify";
 import axios from "axios";
+import doc from "../../../assets/red-svgs/doc.svg";
+import usersIcon from "../../../assets/red-svgs/users-group.svg";
+import list from "../../../assets/red-svgs/list.svg";
 
 const style = {
   position: "absolute",
@@ -35,9 +32,6 @@ const style = {
     lg: "45vw",
     xs: "90%",
   },
-  // height: {
-  //   xs: "90%",
-  // },
   bgcolor: "background.paper",
   border: "2px solid white",
   boxShadow: 24,
@@ -64,21 +58,13 @@ export default function ResourceModal() {
     title: "",
     category: "",
     privacy: "",
-    // course_id: "",
     details: "",
   });
 
   const handleChange = (field, value) => {
     setResourceFormData((prevData) => ({
       ...prevData,
-      ...(field.includes(".")
-        ? {
-            [field.split(".")[0]]: {
-              ...prevData[field.split(".")[0]],
-              [field.split(".")[1]]: value,
-            },
-          }
-        : { [field]: value }),
+      [field]: value,
     }));
   };
 
@@ -95,7 +81,7 @@ export default function ResourceModal() {
       }
 
       const formData = new FormData();
-      formData.append("file", selectedImage);
+      formData.append("file", file); // Corrected: file instead of selectedImage
 
       const response = await axios.post(`${url}/user/upload-file`, formData, {
         headers: {
@@ -105,27 +91,22 @@ export default function ResourceModal() {
       });
 
       if (response.status === 200) {
-        if (response.data.status !== 400) {
-          setMedia(response.data.data.upload_link);
-        }
-        setIsUploadingFile(false);
-
+        setMedia(response.data.data.upload_link);
         toast.success(response.data.message);
       } else {
         throw new Error("Failed to upload file");
       }
     } catch (error) {
       console.error("Error uploading file:", error);
-      setIsUploadingFile(false);
       toast.error("Failed to upload file. Please try again.");
+    } finally {
+      setIsUploadingFile(false);
     }
   };
 
   const handleAddResource = async (e) => {
     e.preventDefault();
 
-    console.log("add resouce called.");
-    console.log("resourceFormData has: ", resourceFormData);
     try {
       const token = decryptedData?.tokens?.access?.token;
       if (!token) {
@@ -144,6 +125,8 @@ export default function ResourceModal() {
       );
       if (response.status === 200) {
         toast.success(response.data.message);
+        handleClose(); // Close the modal on success
+
       } else {
         throw new Error("Failed to Add Resource");
       }
@@ -182,7 +165,6 @@ export default function ResourceModal() {
               <b>Create New Resource</b>
             </Appheading>
             <form onSubmit={handleAddResource} className="mt-3">
-              {/* ----| Title | ---- */}
               <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
                 <label
                   style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}
@@ -206,6 +188,8 @@ export default function ResourceModal() {
                   sx={{ mt: 1.5 }}
                 />
               </AppDiv>
+
+              {/* ----| Category and Privacy Fields |---- */}
               <AppDiv
                 sx={{
                   mt: 3,
@@ -232,15 +216,8 @@ export default function ResourceModal() {
                           gap: "6px",
                         }}
                       >
-                        <img
-                          src={list}
-                          style={{
-                            position: "relative",
-                            marginRight: 2,
-                            width: 18,
-                          }}
-                        />
-                        <span>{resourceFormData.category}</span>
+                        <img src={list} style={{ width: 18, marginRight: 2 }} />
+                        {resourceFormData.category || "Select Category"}
                       </span>
                     )}
                     value={resourceFormData.category}
@@ -258,6 +235,7 @@ export default function ResourceModal() {
                     ))}
                   </Select>
                 </AppDiv>
+
                 <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
                   <label
                     style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}
@@ -277,13 +255,9 @@ export default function ResourceModal() {
                       >
                         <img
                           src={usersIcon}
-                          style={{
-                            position: "relative",
-                            marginRight: 2,
-                            width: 18,
-                          }}
+                          style={{ width: 18, marginRight: 2 }}
                         />
-                        <span>{resourceFormData.privacy}</span>
+                        {resourceFormData.privacy || "Select Privacy"}
                       </span>
                     )}
                     value={resourceFormData.privacy}
@@ -302,6 +276,8 @@ export default function ResourceModal() {
                   </Select>
                 </AppDiv>
               </AppDiv>
+
+              {/* ----| Details Field |---- */}
               <AppDiv
                 sx={{ ...flexCol, mt: 3, width: "100%", alignItems: "start" }}
               >
@@ -320,6 +296,8 @@ export default function ResourceModal() {
                   sx={{ mt: 1.5 }}
                 />
               </AppDiv>
+
+              {/* ----| Upload Media |---- */}
               <AppDiv
                 sx={{ ...flexCol, mt: 3, width: "100%", alignItems: "start" }}
               >
@@ -346,13 +324,33 @@ export default function ResourceModal() {
                   <input
                     disabled={isUploadingFile}
                     type="file"
-                    multiple={false}
                     id="upload-certificate"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
                 </label>
+
+                {/* Display the uploaded file */}
+                {selectedImage && (
+                  <div className="mt-4">
+                    {selectedImage.type.startsWith("image/") ? (
+                      <img
+                        src={URL.createObjectURL(selectedImage)}
+                        alt="Uploaded file preview"
+                        style={{
+                          maxWidth: "100%",
+                          height: "auto",
+                          borderRadius: 8,
+                        }}
+                      />
+                    ) : (
+                      <p>Uploaded file: {selectedImage.name}</p>
+                    )}
+                  </div>
+                )}
               </AppDiv>
+
+              {/* ----| Submit and Discard Buttons |---- */}
               <Stack direction="row" justifyContent={"end"} mt={8} gap={2}>
                 <AppButton
                   type="button"

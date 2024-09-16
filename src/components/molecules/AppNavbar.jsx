@@ -18,7 +18,7 @@ import { useLocation } from "react-router-dom";
 import { gamma } from "../../utils/theme/colors";
 import AppMenu from "./AppMenu";
 
-const pages = ["home", "network", "market", "resources", "event"];
+const pages = ["home",  "resources", "event","network", "market"];
 
 // eslint-disable-next-line react/prop-types
 function AppNavbar() {
@@ -129,9 +129,9 @@ function AppNavbar() {
             aria-label="show 17 new notifications"
             color="inherit"
           >
-            <Badge badgeContent={17} color="error">
+            {/* <Badge badgeContent={17} color="error">
               <NotificationsIcon style={{ color: "#92929D" }} />
-            </Badge>
+            </Badge> */}
           </IconButton>
           <Box sx={{ flexGrow: 0 }}>
             <AppMenu />

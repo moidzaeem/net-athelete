@@ -77,7 +77,7 @@ const EducationTab = () => {
       }
     };
     getEducationList();
-  }, [decryptedData, educationList]);
+  }, [decryptedData]);
   // }, [decryptedData]);
 
   const handleDeleteEducation = async (eduId) => {

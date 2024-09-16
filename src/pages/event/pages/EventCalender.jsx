@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import Grid from "@mui/material/Grid";
 import { PaperStyle } from "../../../utils/styles/index";
 import AppDiv from "../../../components/atoms/AppDiv";
@@ -17,15 +18,64 @@ import PlaceIcon from "@mui/icons-material/Place";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import EventModal from "../components/CreateModal";
+import useCrypto from "../../../utils/hooks/encrypt";
 
 const EventCalendar = () => {
   const [sortBy, setSortBy] = useState("");
   const [value, onChange] = useState(new Date());
+  const [events, setEvents] = useState([]);
+  const [todayEvents, setTodayEvents] = useState([]);
+  const [futureEvents, setFutureEvents] = useState([]);
+  const { decryptedData } = useCrypto();
+  const url = import.meta.env.VITE_BASE_URL;
+  const authenticatedUserId = decryptedData?.user?.id;
 
   const handleChange = (event) => {
     setSortBy(event.target.value);
     // You can perform sorting logic here based on the selected value
   };
+
+  const fetchEvents = async () => {
+    const token = decryptedData?.tokens?.access?.token;
+    console.log(token);
+    if (!token) {
+      throw new Error("No token found in local storage");
+    }
+
+    try {
+      const response = await axios.get(`${url}/event/get-all-events`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });      const fetchedEvents = response.data.data;
+      
+      // Filter today's events
+      const today = new Date();
+      const todayFiltered = fetchedEvents.filter((event) => {
+        const eventDate = new Date(event.start_date); // Assuming event.date is the event date
+        return eventDate.toDateString() === today.toDateString();
+      });
+
+      // Filter future events
+      const futureFiltered = fetchedEvents.filter((event) => {
+        const eventDate = new Date(event.start_date);
+        return eventDate > today;
+      });
+
+      setEvents(fetchedEvents);
+      setTodayEvents(todayFiltered);
+      setFutureEvents(futureFiltered);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (decryptedData && decryptedData.tokens && decryptedData.tokens.access) {
+      fetchEvents();
+    }
+  }, [decryptedData]);
+  
 
   return (
     <Grid container spacing={2}>
@@ -76,38 +126,8 @@ const EventCalendar = () => {
               <EastIcon sx={{ ml: 2, color: gamma }} />
             </AppDiv>
           </AppDiv>
-          <AppDiv
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              mt: 4,
-              gap: 1,
-              flexWrap: "wrap",
-            }}
-          >
-            {[1, 2, 3, 4, 5, 6].map((items) => {
-              return (
-                <AppDiv
-                  key={items}
-                  sx={{
-                    height: 80,
-                    width: 80,
-                    background: "#E9E9E9",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: 4,
-                  }}
-                >
-                  <Appheading>{items}</Appheading>
-                  <Appfont sx={{ color: "red" }}>
-                    <b>Mon</b>
-                  </Appfont>
-                </AppDiv>
-              );
-            })}
-          </AppDiv>
+
+          {/* Today's Events */}
           <AppDiv
             sx={{
               display: "flex",
@@ -121,69 +141,66 @@ const EventCalendar = () => {
               Today’s Event
             </Appheading>
           </AppDiv>
-          {/* the card */}
-          {[1, 2, 3].map((items) => {
-            return (
-              <AppDiv
-                key={items}
-                sx={{
-                  mt: 3,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: {
-                    lg: "center",
-                    xs: "stretch",
-                  },
-                  border: "1px solid wheat",
-                  p: 2,
-                  borderRadius: 4,
-                  ":hover": {
-                    backgroundColor: "",
-                    border: "2px solid #FFC542",
-                  },
-                  flexDirection: {
-                    lg: "row",
-                    xs: "column",
-                  },
-                  gap: 2,
-                }}
-              >
-                <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-                  <img
-                    width={150}
-                    style={{ borderRadius: "12px" }}
-                    src="https://img.freepik.com/free-photo/success-grass-soccer-ball-generated-by-ai_188544-9819.jpg"
-                    alt=""
-                  />
-                  <AppDiv sx={{ display: "block", alignItems: "center" }}>
-                    <Appfont sx={{ textAlign: "left", ml: 2 }}>
-                      Indonesia Creative Job Fair 2019
+          {todayEvents.map((event, index) => (
+            <AppDiv
+              key={index}
+              sx={{
+                mt: 3,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: {
+                  lg: "center",
+                  xs: "stretch",
+                },
+                border: "1px solid wheat",
+                p: 2,
+                borderRadius: 4,
+                ":hover": {
+                  backgroundColor: "",
+                  border: "2px solid #FFC542",
+                },
+                flexDirection: {
+                  lg: "row",
+                  xs: "column",
+                },
+                gap: 2,
+              }}
+            >
+              <AppDiv sx={{ display: "flex", alignItems: "center" }}>
+                <img
+                  width={150}
+                  style={{ borderRadius: "12px" }}
+                  src={event.image}
+                  alt={event.title}
+                />
+                <AppDiv sx={{ display: "block", alignItems: "center" }}>
+                  <Appfont sx={{ textAlign: "left", ml: 2 }}>
+                    {event.title}
+                  </Appfont>
+                  <AppDiv sx={{ display: "flex", alignItems: "center" }}>
+                    <RoomIcon
+                      sx={{ color: "grey", ml: 1 }}
+                      fontSize="small"
+                    />
+                    <Appfont sx={{ mr: 1, ml: 1 }}>
+                      {event.location.name}
                     </Appfont>
-                    <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-                      <RoomIcon
-                        sx={{ color: "grey", ml: 1 }}
-                        fontSize="small"
-                      />
-                      <Appfont sx={{ mr: 1, ml: 1 }}>
-                        Grand Sarila Hotel
-                      </Appfont>
-                      <Appcaption>Jakarta, Indonesia</Appcaption>
-                    </AppDiv>
+                    <Appcaption>{event.location.city}, {event.location.country}</Appcaption>
                   </AppDiv>
                 </AppDiv>
-                <AppDiv>
-                  <AppButton
-                    variant="contained"
-                    fullWidth
-                    color="primary"
-                    sx={{ background: gamma }}
-                  >
-                    Sport Name
-                  </AppButton>
-                </AppDiv>
               </AppDiv>
-            );
-          })}
+              <AppDiv>
+                <AppButton
+                  variant="contained"
+                  fullWidth
+                  color="primary"
+                  sx={{ background: gamma }}
+                >
+                  {event.category}
+                </AppButton>
+              </AppDiv>
+            </AppDiv>
+          ))}
         </AppDiv>
       </Grid>
 
@@ -198,7 +215,6 @@ const EventCalendar = () => {
         }}
       >
         <AppDiv>
-          {/* first box */}
           <AppDiv sx={alingItem}>
             <Appheading>Calendar of the Month</Appheading>
             <EventModal />
@@ -210,7 +226,8 @@ const EventCalendar = () => {
               value={value}
             />
           </AppDiv>
-          {/* second box */}
+
+          {/* Future Events */}
           <AppDiv sx={{ ...alingItem, mt: 10 }}>
             <Appheading sx={{ textAlign: "left", width: 210 }}>
               Events to Come
@@ -241,115 +258,110 @@ const EventCalendar = () => {
             </Select>
           </AppDiv>
           <AppDiv>
-            {[1, 2, 3, 4, 5, 6].map((items) => {
-              return (
+            {futureEvents.map((event, index) => (
+              <AppDiv
+                key={index}
+                sx={{
+                  display: "flex",
+                  mt: 3,
+                  ...PaperStyle,
+                  background: "white",
+                  p: 2,
+                  width: "100%",
+                  justifyContent: {
+                    lg: "space-between",
+                    xs: "center",
+                  },
+                  flexWrap: "wrap",
+                  cursor: "pointer",
+                  backgroundColor: "white",
+                  ":hover": {
+                    backgroundColor: "",
+                    border: "2px solid #FFC542",
+                  },
+                }}
+              >
                 <AppDiv
-                  key={items}
                   sx={{
                     display: "flex",
-                    mt: 3,
-                    ...PaperStyle,
-                    background: "white",
-                    p: 2,
-                    width: "100%",
-                    justifyContent: {
-                      lg: "space-between",
-                      xs: "center",
-                    },
-                    flexWrap: "wrap",
-                    cursor: "pointer",
-                    backgroundColor: "white",
-                    ":hover": {
-                      backgroundColor: "",
-                      border: "2px solid #FFC542",
+                    flexDirection: {
+                      md: "row",
+                      xs: "column",
                     },
                   }}
                 >
-                  <AppDiv
-                    sx={{
-                      display: "flex",
-                      flexDirection: {
-                        md: "row",
-                        xs: "column",
-                      },
-                    }}
-                  >
-                    <img
-                      width={"150px"}
-                      style={{ borderRadius: "10px" }}
-                      src="https://img.freepik.com/free-photo/success-grass-soccer-ball-generated-by-ai_188544-9819.jpg"
-                      alt=""
-                    />
-                    <AppDiv sx={{ ml: 2 }}>
-                      <Appfont sx={{ textAlign: "left" }}>
-                        <b>Indonesia Creative Job Fair 2019</b>{" "}
-                      </Appfont>
-                      <AppDiv sx={{ display: "flex", mt: 1, mb: 1 }}>
-                        <Appfont> Grand Sarila Hotel</Appfont>
-                        <Appcaption sx={{ ml: 1 }}>
-                          Jakarta, Indonesia
-                        </Appcaption>
-                        <PlaceIcon fontSize="small" sx={{ ml: 1 }} />
-                      </AppDiv>
-                      <AppDiv sx={{ display: "flex" }}>
-                        <img src="/Member.svg" alt="" />
-                        <Appcaption sx={{ ml: 2 }}>5 Friends Join</Appcaption>
-                      </AppDiv>
-                      <AppDiv
-                        sx={{ display: "flex", alignItems: "center", mt: 1 }}
-                      >
-                        <Appcaption>E-commerce, Design</Appcaption>
-                        <Appcaption sx={{ ml: 2 }}>
-                          <b>158</b>
-                        </Appcaption>
-                      </AppDiv>
+                  <img
+                    width={"150px"}
+                    style={{ borderRadius: "10px" }}
+                    src={event.image}
+                    alt={event.title}
+                  />
+                  <AppDiv sx={{ ml: 2 }}>
+                    <Appfont sx={{ textAlign: "left" }}>
+                      <b>{event.title}</b>{" "}
+                    </Appfont>
+                    <AppDiv sx={{ display: "flex", mt: 1, mb: 1 }}>
+                      <Appfont>{event.location}</Appfont>
+                    
+                      <PlaceIcon fontSize="small" sx={{ ml: 1 }} />
+                    </AppDiv>
+                    <AppDiv sx={{ display: "flex" }}>
+                      <Appcaption sx={{ ml: 2 }}>{event.follower_list.length} People Join</Appcaption>
+                    </AppDiv>
+                    <AppDiv
+                      sx={{ display: "flex", alignItems: "center", mt: 1 }}
+                    >
+                      <Appcaption>{event.category}</Appcaption>
+                      <Appcaption sx={{ ml: 2 }}>
+                        <b>{event.attendees}</b>
+                      </Appcaption>
                     </AppDiv>
                   </AppDiv>
-                  <AppDiv>
-                    <Appfont
-                      sx={{
-                        textAlign: {
-                          lg: "end",
-                          xs: "center",
-                        },
-                        color: secondary,
-                      }}
-                    >
-                      APR
-                    </Appfont>
-                    <Appfont
-                      sx={{
-                        color: "#27CEF8",
-                        fontSize: 20,
-                        textAlign: {
-                          lg: "end",
-                          xs: "center",
-                        },
-                        mb: 2,
-                        mt: 2,
-                      }}
-                    >
-                      <b> 27</b>
-                    </Appfont>
-                    <AppButton
-                      sx={{ backgroundColor: "#FFC542", width: 100 }}
-                      variant="contained"
-                      color="warning"
-                    >
-                      Follow
-                    </AppButton>
-                    <AppIconButton
-                      sx={{ border: "1px solid #E2E2EA", mr: 1, ml: 1 }}
-                    >
-                      <BookmarkIcon fontSize="small" />
-                    </AppIconButton>
-                    <AppIconButton sx={{ border: `1px solid #E2E2EA` }}>
-                      <ShareIcon fontSize="small" />
-                    </AppIconButton>
-                  </AppDiv>
                 </AppDiv>
-              );
-            })}
+                <AppDiv>
+                  <Appfont
+                    sx={{
+                      textAlign: {
+                        lg: "end",
+                        xs: "center",
+                      },
+                      color: secondary,
+                    }}
+                  >
+                    {event.dateMonth}
+                  </Appfont>
+                  <Appfont
+                    sx={{
+                      color: "#27CEF8",
+                      fontSize: 20,
+                      textAlign: {
+                        lg: "end",
+                        xs: "center",
+                      },
+                      mb: 2,
+                      mt: 2,
+                    }}
+                  >
+                    <b>{event.dateDay}</b>
+                  </Appfont>
+                  <AppButton
+                    sx={{ backgroundColor: "#FFC542", width: 100 }}
+                    variant="contained"
+                    color="warning"
+                  >
+                    Follow
+                  </AppButton>
+                  {/* <AppIconButton
+                    sx={{ border: "1px solid #E2E2EA", mr: 1, ml: 1 }}
+                  >
+                    <BookmarkIcon fontSize="small" />
+                  </AppIconButton>
+                  <AppIconButton sx={{ border: `1px solid #E2E2EA` }}>
+                    <ShareIcon fontSize="small" />
+                  </AppIconButton> */}
+                </AppDiv>
+              </AppDiv>
+            ))}
           </AppDiv>
         </AppDiv>
       </Grid>

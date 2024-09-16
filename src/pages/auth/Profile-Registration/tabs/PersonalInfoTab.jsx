@@ -72,45 +72,54 @@ const PersonalInfoTab = () => {
         if (!token) {
           throw new Error("No token found in local storage");
         }
-
+  
         const response = await axios.get(`${url}/user`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+  
         if (response.status === 200) {
           const userProfileData = response.data.data;
-
-          const [firstName, lastName] = userProfileData.name.split(" ");
-          const headline = userProfileData.headline;
-          const portfolio_link = userProfileData.portfolio_link;
-          const birth_place = userProfileData.birth_place;
-          const date_of_birth = userProfileData.date_of_birth;
-          const [detailAddress, zipCode, cityTown] =
-            userProfileData.address.split(", ");
-          const id_card = userProfileData.id_card;
+  
+          // Handle potential missing or unexpected data
+          const [firstName = '', lastName = ''] = userProfileData.name ? userProfileData.name.split(" ") : [];
+          const headline = userProfileData.headline || '';
+          const portfolio_link = userProfileData.portfolio_link || '';
+          const birth_place = userProfileData.birth_place || '';
+          const date_of_birth = userProfileData.date_of_birth || '';
+  
+          // Ensure address splitting handles missing or unexpected formats
+          const addressParts = userProfileData.address ? userProfileData.address.split(", ") : [];
+          const [detailAddress = '', zipCode = '', cityTown = ''] = addressParts;
+          
+          const id_card = userProfileData.id_card || '';
+  
           setPersonalInfoFormData({
             ...personalInfoFormData,
-            firstName: firstName,
-            lastName: lastName,
-            headline: headline,
-            portfolio_link: portfolio_link,
-            birth_place: birth_place,
-            date_of_birth: date_of_birth,
-            detailAddress: detailAddress,
-            zipCode: zipCode,
-            cityTown: cityTown,
-            id_card: id_card,
+            firstName,
+            lastName,
+            headline,
+            portfolio_link,
+            birth_place,
+            date_of_birth,
+            detailAddress,
+            zipCode,
+            cityTown,
+            id_card,
           });
         } else {
           throw new Error("Failed to fetch user profile data");
         }
       } catch (error) {
         console.error("Error fetching user profile data:", error);
+        // Optional: You might want to handle errors or show a user-friendly message here
       }
     };
+  
     getUserProfile();
   }, [decryptedData]);
+  
 
   const handleChange = (field, value) => {
     setPersonalInfoFormData((prevData) => ({
@@ -170,13 +179,13 @@ const PersonalInfoTab = () => {
       }}
     >
       <AppDiv sx={{ textAlign: "right" }}>
-        <AppButton
+        {/* <AppButton
           startIcon={<EditIcon />}
           variant="contained"
           sx={{ background: "black", color: "white", top: 70, right: 30 }}
         >
           Change Image
-        </AppButton>
+        </AppButton> */}
       </AppDiv>
       <Avatar
         alt={cameraIcon}

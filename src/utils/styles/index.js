@@ -7,7 +7,7 @@ export const flexCol = {
 
 export const PaperStyle = {
   p: {
-    lg: 3,
+    lg: 8,
     xs: 2,
   },
   borderRadius: 4,

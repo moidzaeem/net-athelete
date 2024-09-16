@@ -17,7 +17,7 @@ import smile from "../../../assets/svg/smile.svg";
 import { useEffect, useState } from "react";
 import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
-
+import userPng from "../../assets/images/user.png"
 const FeedCard = () => {
   const { decryptedData } = useCrypto();
   const [feedData, setFeedData] = useState([]); // Initialize feedData as an empty array
@@ -138,7 +138,7 @@ console.log(token)
 
       <Divider sx={{ my: 2 }} />
       <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-        <Avatar src="/avatar.svg" />
+        <Avatar src={userPng} />
         <TextField
           sx={{
             "& .MuiOutlinedInput-root": {

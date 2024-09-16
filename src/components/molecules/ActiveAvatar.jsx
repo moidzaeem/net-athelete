@@ -4,7 +4,7 @@ import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import { Appcaption, Appfont } from "../../utils/theme";
 import AppDiv from "../atoms/AppDiv";
-
+import userPng from "../../assets/images/user.png"
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -43,7 +43,7 @@ export default function ActiveAvatar() {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           variant="dot"
         >
-          <Avatar alt="Remy Sharp" src="/avatar.svg" />
+          <Avatar alt="Remy Sharp" src={userPng} />
         </StyledBadge>
         <AppDiv sx={{ ml: 1, mt: 1 }}>
           <Appfont sx={{ textAlign: "left", lineHeight: 0.8 }}>Mbapee</Appfont>

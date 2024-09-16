@@ -7,7 +7,7 @@ import gallery from "../../../assets/svg/gallery.svg";
 import { toast } from "react-toastify";
 import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
-
+import  userPng from "../../../assets/images/user.png"
 const PostCard = ({ chnageFeedData, setChangeFeedData }) => {
   const { decryptedData } = useCrypto();
   const [postContent, setPostContent] = useState("");
@@ -119,7 +119,7 @@ const PostCard = ({ chnageFeedData, setChangeFeedData }) => {
       </AppDiv>
       <Divider sx={{ my: 2 }} />
       <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-        <Avatar src="/avatar.svg" />
+        <Avatar src={userPng} />
         <TextField
           sx={{
             "& .MuiOutlinedInput-root": {

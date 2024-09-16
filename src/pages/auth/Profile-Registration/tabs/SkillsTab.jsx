@@ -54,7 +54,7 @@ const SkillsTab = () => {
       }
     };
     getUserProfile();
-  }, [decryptedData, userInfo]);
+  }, [decryptedData]);
 
   const handleUpdateSkills = async (e) => {
     e.preventDefault();

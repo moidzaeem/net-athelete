@@ -8,16 +8,11 @@ import { AppPaper } from "./../../../components/atoms/AppPaper";
 import AppDiv from "../../../components/atoms/AppDiv";
 import { InputAdornment, Stack, TextField } from "@mui/material";
 import { Appheading } from "../../../utils/theme";
-import AppSelect from "../../../components/molecules/AppSelect";
-import AppTextFeild from "../../../components/molecules/AppTextFeild";
+import UploadSvg from "../../../assets/svg/UploadSvg";
 import doc from "../../../assets/red-svgs/doc.svg";
-import usersIcon from "../../../assets/red-svgs/users-group.svg";
-import list from "../../../assets/red-svgs/list.svg";
-import axios from "axios"; // Import axios at the top of your file
+import axios from "axios";
 import { toast } from "react-toastify";
 import useCrypto from "../../../utils/hooks/encrypt";
-import AppTextField from "../../../components/molecules/AppTextFeild";
-import UploadSvg from "../../../assets/svg/UploadSvg";
 import { alpha, beta } from "../../../utils/theme/colors";
 
 const style = {
@@ -29,17 +24,12 @@ const style = {
     lg: 700,
     xs: "90%",
   },
-  // height: {
-  //   xs: "85%",
-  // },
   bgcolor: "background.paper",
   border: "2px solid white",
   boxShadow: 24,
   p: 4,
   borderRadius: 4,
-  overflow: {
-    xs: "scroll",
-  },
+  overflow: "scroll",
 };
 
 const NetworkModal = () => {
@@ -47,11 +37,6 @@ const NetworkModal = () => {
   const url = import.meta.env.VITE_BASE_URL;
 
   const [open, setOpen] = React.useState(false);
-  // const [name, setName] = useState("");
-  // const [category, setCategory] = useState("");
-  // const [isPublic, setIsPublic] = useState(false);
-  // const [groupRules, setGroupRules] = useState("");
-
   const [selectedImage, setSelectedImage] = React.useState(null);
   const [media, setMedia] = React.useState("");
   const [isUploadingFile, setIsUploadingFile] = React.useState(false);
@@ -62,11 +47,6 @@ const NetworkModal = () => {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
-  // const handleNameChange = (value) => setName(value);
-  // const handleCategoryChange = (value) => setCategory(value);
-  // const handleIsPublicChange = (value) => setIsPublic(value === "true");
-  // const handleGroupRulesChange = (value) => setGroupRules(value);
 
   const handleChange = (field, value) => {
     setGroupFormData((prevData) => ({
@@ -85,7 +65,6 @@ const NetworkModal = () => {
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
-
     setIsUploadingFile(true);
 
     try {
@@ -95,7 +74,7 @@ const NetworkModal = () => {
       }
 
       const formData = new FormData();
-      formData.append("file", selectedImage);
+      formData.append("file", file);
 
       const response = await axios.post(`${url}/user/upload-file`, formData, {
         headers: {
@@ -104,28 +83,23 @@ const NetworkModal = () => {
         },
       });
 
-      if (response.status === 200) {
-        if (response.data.status !== 400) {
-          setMedia(response.data.data.upload_link);
-        }
-        setIsUploadingFile(false);
-
+      if (response.status === 200 && response.data.status !== 400) {
+        setMedia(response.data.data.upload_link);
         toast.success(response.data.message);
       } else {
         throw new Error("Failed to upload file");
       }
     } catch (error) {
       console.error("Error uploading file:", error);
-      setIsUploadingFile(false);
       toast.error("Failed to upload file. Please try again.");
+    } finally {
+      setIsUploadingFile(false);
     }
   };
 
   const handleAddGroup = async (e) => {
     e.preventDefault();
 
-    console.log("add group called.");
-    console.log("groupFormData has: ", groupFormData);
     try {
       const token = decryptedData?.tokens?.access?.token;
       if (!token) {
@@ -142,48 +116,17 @@ const NetworkModal = () => {
           },
         }
       );
+
       if (response.status === 200) {
         toast.success(response.data.message);
       } else {
-        throw new Error("Failed to Create Group");
+        throw new Error("Failed to create group");
       }
     } catch (error) {
-      console.error("Error Ceating Group: ", error);
-      toast.error("Failed to Create Group. Please try again.");
+      console.error("Error creating group:", error);
+      toast.error("Failed to create group. Please try again.");
     }
   };
-
-  // const handleSubmit = async () => {
-  //   try {
-  //     const token = decryptedData.tokens.access.token; // Get JWT token from local storage
-  //     if (!token) {
-  //       throw new Error("No token found in local storage");
-  //     }
-
-  //     const response = await axios.post(
-  //       `${url}/group`,
-  //       {
-  //         name,
-  //       },
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     if (response.status === 200) {
-  //       toast.success(response.data.message); // Notify user of success
-  //       handleClose(); // Close modal after successful submission
-  //     } else {
-  //       throw new Error("Failed to create group");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error creating group:", error);
-  //     toast.error("Failed to create group. Please try again."); // Notify user of failure
-  //   }
-  // };
 
   return (
     <div>
@@ -216,9 +159,7 @@ const NetworkModal = () => {
             <form onSubmit={handleAddGroup}>
               {/* ----| Group Name | ---- */}
               <AppDiv sx={{ ...flexCol, width: "100%", alignItems: "start" }}>
-                <label
-                  style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}
-                >
+                <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
                   Group Name
                 </label>
                 <TextField
@@ -239,12 +180,8 @@ const NetworkModal = () => {
                 />
               </AppDiv>
               {/* ----| Group Image | ---- */}
-              <AppDiv
-                sx={{ ...flexCol, mt: 3, width: "100%", alignItems: "start" }}
-              >
-                <label
-                  style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}
-                >
+              <AppDiv sx={{ ...flexCol, mt: 3, width: "100%", alignItems: "start" }}>
+                <label style={{ fontFamily: "Plus Jakarta Sans", fontWeight: 600 }}>
                   Upload Media
                 </label>
                 <label
@@ -272,52 +209,14 @@ const NetworkModal = () => {
                   />
                 </label>
               </AppDiv>
-              {/* <AppDiv
-                sx={{
-                  display: "flex",
-                  alignItems: "end",
-                  justifyContent: "space-between",
-                  gap: 3,
-                  flexDirection: {
-                    md: "row",
-                    xs: "column",
-                  },
-                }}
-              >
-                <AppSelect
-                  label="Category"
-                  img={list}
-                  iconStyle={{ width: "25px" }}
-                  options={[{ label: "Select start date" }]}
-                  // value={category}
-                  // onChange={handleCategoryChange}
-                />
-                <AppSelect
-                  label="Public"
-                  img={usersIcon}
-                  iconStyle={{ width: "25px" }}
-                  options={[{ label: "Public" }]}
-                  // value={isPublic ? "true" : "false"}
-                  // onChange={handleIsPublicChange}
-                />
-              </AppDiv>
-              <AppDiv height={30} />
-              <AppTextField
-                rest={{ height: 100 }}
-                label="Group Rules"
-                value={groupRules}
-                onChange={handleGroupRulesChange}
-              />
-              <AppDiv height={60} /> */}
-
-              <Stack direction="row" justifyContent={"end"} mt={8} gap={2}>
+              <Stack direction="row" justifyContent="end" mt={8} gap={2}>
                 <AppButton
                   type="button"
                   onClick={handleClose}
                   variant="contained"
                   sx={{ backgroundColor: alpha, color: "#7F879E", width: 130 }}
                 >
-                  <b> Discard</b>
+                  <b>Discard</b>
                 </AppButton>
                 <AppButton
                   type="submit"

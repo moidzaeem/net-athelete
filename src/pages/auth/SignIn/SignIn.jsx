@@ -63,7 +63,7 @@ const SignInPage = () => {
         console.log(response)
         encrypt(response.data.data); 
         toast(response.data.message);
-        navigate("/"); 
+        navigate("/profile-registration"); 
         // Delay the reload to give time for the toast to be visible
         setTimeout(() => {
           window.location.reload();
@@ -179,7 +179,7 @@ const SignInPage = () => {
                 </AppButton>
                 {error && <div>Error: {error}</div>}
 
-                <Divider sx={{ my: 2 }}>
+                {/* <Divider sx={{ my: 2 }}>
                   <Appcaption>OR</Appcaption>
                 </Divider>
                 <Stack spacing={2} direction="row">
@@ -195,9 +195,9 @@ const SignInPage = () => {
                       </AppButton>
                     )
                   )}
-                </Stack>
+                </Stack> */}
               </Paper>
-              <Appfont sx={{ mt: 4 }}>
+              <Appfont sx={{ mt: 2 }}>
                 Forgot Password{" "}
                 <Link to={RoutePath.SIGNUP} style={{ color: gamma }}>
                   Sign up for new user?

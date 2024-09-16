@@ -50,13 +50,13 @@ const AllEvents = () => {
           throw new Error("No token found in local storage");
         }
 
-        const response = await axios.get(`${url}/event`, {
+        const response = await axios.get(`${url}/event/get-all-events`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         if (response.status === 200) {
-          setAllEventsList(response.data.data.result);
+          setAllEventsList(response.data.data);
         } else {
           throw new Error("Failed to fetch user profile data");
         }
@@ -158,13 +158,13 @@ const AllEvents = () => {
         </div>
       </Box> */}
       <Grid container mt={8}>
-        <Grid
+        {/* <Grid
           item
           xs={12}
           md={2.5}
           sx={{ background: "white", p: 2.5, width: { xs: "100%", lg: 300 } }}
         >
-          {/* <AppDiv
+          <AppDiv
             sx={{
               ...PaperStyle,
               background: "white",
@@ -175,10 +175,10 @@ const AllEvents = () => {
                 xs: "100%",
               },
             }}
-          > */}
+          >
           <SearchSidebar />
-          {/* </AppDiv> */}
-        </Grid>
+          </AppDiv>
+        </Grid> */}
         <Grid item xs={12} md={9.3} className="px-6 md:px-10 py:10">
           {/* heading */}
           <AppDiv
@@ -216,7 +216,10 @@ const AllEvents = () => {
                 Sort By: Default
               </MenuItem>
               <MenuItem sx={{ fontSize: 12 }} value="popularity">
-                Popularity
+                High Followers
+              </MenuItem>
+              <MenuItem sx={{ fontSize: 12 }} value="lastUpdated">
+                Last Updated
               </MenuItem>
               {/* Add more sorting options here if needed */}
             </Select>
@@ -268,24 +271,26 @@ const AllEvents = () => {
                           <b>{event.name}</b>
                         </Appfont>
                         <AppDiv sx={{ display: "flex", mt: 1, mb: 1 }}>
-                          <Appfont> Grand Sarila Hotel</Appfont>
+                          <Appfont> {event.details}</Appfont>
                           <Appcaption sx={{ ml: 1 }}>
                             {event.location}
                           </Appcaption>
                           <PlaceIcon fontSize="small" sx={{ ml: 1 }} />
                         </AppDiv>
                         <AppDiv sx={{ display: "flex" }}>
-                          <img src="/Member.svg" alt="" />
-                          <Appcaption sx={{ ml: 2 }}>5 Friends Join</Appcaption>
+                          {/* <img src="/Member.svg" alt="" /> */}
+                          <Appcaption sx={{ ml: 2 }}>
+                            {event.follower_list?.length} People Join
+                          </Appcaption>
                         </AppDiv>
-                        <AppDiv
+                        {/* <AppDiv
                           sx={{ display: "flex", alignItems: "center", mt: 1 }}
                         >
                           <Appcaption>E-commerce, Design</Appcaption>
                           <Appcaption sx={{ ml: 2 }}>
                             <b>158</b>
                           </Appcaption>
-                        </AppDiv>
+                        </AppDiv> */}
                       </AppDiv>
                     </AppDiv>
                     <AppDiv>
