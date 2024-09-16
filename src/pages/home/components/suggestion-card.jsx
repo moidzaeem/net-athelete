@@ -17,7 +17,13 @@ const SuggestionCard = () => {
       }}
     >
       {/* three dot */}
-      <AppDiv sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <AppDiv
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <AppLabel>Suggested Pages</AppLabel>
         <AppButton
           sx={{

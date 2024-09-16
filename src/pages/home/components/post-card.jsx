@@ -8,32 +8,30 @@ import { toast } from "react-toastify";
 import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
 
-const PostCard = ({chnageFeedData,setChangeFeedData}) => {
+const PostCard = ({ chnageFeedData, setChangeFeedData }) => {
   const { decryptedData } = useCrypto();
   const [postContent, setPostContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [media, setMedia] = useState('');
+  const [media, setMedia] = useState("");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setSelectedImage(file);
   };
 
-
-
   useEffect(() => {
     const handleSubmit = async () => {
       setLoading(true);
       const url = import.meta.env.VITE_BASE_URL; // Assuming you are using Vite for environment variables
-  
+
       try {
         const token = decryptedData.tokens.access.token; // Get JWT token from local storage
         if (!token) {
-          throw new Error('No token found in local storage');
+          throw new Error("No token found in local storage");
         }
-  
-        console.log(media)
+
+        console.log(media);
         const response = await axios.post(
           `${url}/feed`,
           {
@@ -42,32 +40,32 @@ const PostCard = ({chnageFeedData,setChangeFeedData}) => {
           },
           {
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           }
         );
-  
+
         if (response.status === 200) {
           setLoading(false);
-          setChangeFeedData(!chnageFeedData)
-          setPostContent("")
+          setChangeFeedData(!chnageFeedData);
+          setPostContent("");
           toast.success(response.data.message); // Notify user of success
           // Optionally, reset form fields or take other actions after successful post creation
         } else {
-          throw new Error('Failed to create post');
+          throw new Error("Failed to create post");
         }
       } catch (error) {
         setLoading(false);
-        console.error('Error creating post:', error);
-        toast.error('Failed to create post. Please try again.'); // Notify user of failure
+        console.error("Error creating post:", error);
+        toast.error("Failed to create post. Please try again."); // Notify user of failure
       }
     };
 
-    if(media){
-      handleSubmit()
+    if (media) {
+      handleSubmit();
     }
-  },[media])
+  }, [media]);
 
   const handleFile = async () => {
     setLoading(true);
@@ -76,16 +74,16 @@ const PostCard = ({chnageFeedData,setChangeFeedData}) => {
     try {
       const token = decryptedData.tokens.access.token; // Get JWT token from local storage
       if (!token) {
-        throw new Error('No token found in local storage');
+        throw new Error("No token found in local storage");
       }
 
       const formData = new FormData();
-      formData.append('file', selectedImage);
+      formData.append("file", selectedImage);
 
       const response = await axios.post(`${url}/user/upload-file`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -98,16 +96,14 @@ const PostCard = ({chnageFeedData,setChangeFeedData}) => {
         setLoading(false);
         toast.error(response.data.message); // Notify user of success or failure
       } else {
-        throw new Error('Failed to upload file');
+        throw new Error("Failed to upload file");
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error("Error uploading file:", error);
       setLoading(false);
-      toast.error('Failed to upload file. Please try again.'); // Notify user of failure
+      toast.error("Failed to upload file. Please try again."); // Notify user of failure
     }
   };
-
-
 
   return (
     <AppDiv
@@ -119,7 +115,7 @@ const PostCard = ({chnageFeedData,setChangeFeedData}) => {
       }}
     >
       <AppDiv sx={{ display: "flex", justifyContent: "space-between" }}>
-      <AppLabel>Post Something</AppLabel>
+        <AppLabel>Post Something</AppLabel>
       </AppDiv>
       <Divider sx={{ my: 2 }} />
       <AppDiv sx={{ display: "flex", alignItems: "center" }}>
@@ -154,10 +150,20 @@ const PostCard = ({chnageFeedData,setChangeFeedData}) => {
             style={{ display: "none" }}
             onChange={handleImageChange}
           />
-          <img src={gallery} alt="gallery" style={{ cursor: "pointer", marginLeft: "10px" }} />
+          <img
+            src={gallery}
+            alt="gallery"
+            style={{ cursor: "pointer", marginLeft: "10px" }}
+          />
         </label>
 
-        <button disabled={loading} className={`${loading && "post-btndisable"} post-btn`} onClick={handleFile}>Post</button>
+        <button
+          disabled={loading}
+          className={`${loading && "post-btndisable"} post-btn`}
+          onClick={handleFile}
+        >
+          Post
+        </button>
       </AppDiv>
     </AppDiv>
   );
