@@ -20,9 +20,8 @@ export default function AppMenu() {
   const handleLogout = () => {
     localStorage.removeItem("auth");
     toast.success("Logout successfully");
-    setTimeout(() => {
-      navigate("/signup"); 
-    }, 1000);
+    navigate("/"); 
+    window.location.reload();
   };
 
   const handleProfile = () => {

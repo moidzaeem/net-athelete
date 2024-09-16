@@ -64,10 +64,11 @@ const SignInPage = () => {
         encrypt(response.data.data); 
         toast(response.data.message);
         navigate("/profile-registration"); 
+           window.location.reload();
         // Delay the reload to give time for the toast to be visible
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000); // 1 second delay
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 1000); // 1 second delay
       }
     } catch (error) {
       console.error("Login failed:", error);

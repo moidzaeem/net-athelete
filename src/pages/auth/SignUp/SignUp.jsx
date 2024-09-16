@@ -253,12 +253,7 @@ const SignUpPage = () => {
                       <InputAdornment position="start">
                         <MailOutlineIcon sx={{ width: "14px" }} />
                       </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Appfont>@circle.co</Appfont>
-                      </InputAdornment>
-                    ),
+                    )
                   }}
                 />
                 {/* Passwords */}
