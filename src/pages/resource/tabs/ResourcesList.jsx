@@ -15,11 +15,13 @@ const ResourcesList = ({ allResourcesList }) => {
       {allResourcesList?.map((resource) => (
         <div key={resource.id} className="col-span-1">
           <img
-            width={"100%"}
-            height={200}
-            style={{ borderRadius: "10px 10px 0px 0px" }}
-            src="https://w0.peakpx.com/wallpaper/903/781/HD-wallpaper-kylian-mbappe-fifa-22.jpg"
-            alt=""
+            src={
+              resource.media !== "somemedialink"
+                ? resource.media
+                : "https://w0.peakpx.com/wallpaper/903/781/HD-wallpaper-kylian-mbappe-fifa-22.jpg"
+            }
+            alt={resource.title}
+            className="w-full h-50 rounded-tl-[10px] rounded-tr-[10px]"
           />
           <AppPaper
             elevation={0}
@@ -38,6 +40,7 @@ const ResourcesList = ({ allResourcesList }) => {
                 fontWeight: 600,
                 textAlign: "left",
               }}
+              className="line-clamp-1"
             >
               {resource.title}
             </Appfont>

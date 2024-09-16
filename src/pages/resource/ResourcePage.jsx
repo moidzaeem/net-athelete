@@ -29,6 +29,9 @@ const ResourcePage = () => {
   const [allResourcesList, setAllResourcesList] = React.useState([]);
   const [sortBy, setSortBy] = React.useState("");
   const [activeTab, setActiveTab] = React.useState("all");
+  const [allCoursesList, setAllCoursesList] = React.useState([]);
+  const [allArticlesList, setAllArticlesList] = React.useState([]);
+  const [allWebinarsList, setAllWebinarsList] = React.useState([]);
 
   React.useEffect(() => {
     const getAllResources = async () => {
@@ -43,7 +46,23 @@ const ResourcePage = () => {
           },
         });
         if (response.status === 200) {
-          setAllResourcesList(response.data.data.result);
+          // setAllResourcesList(response.data.data.result);
+
+          const resources = response.data.data.result;
+          const courses = resources.filter(
+            (resource) => resource.category === "course"
+          );
+          const webinars = resources.filter(
+            (resource) => resource.category === "webinar"
+          );
+          const articles = resources.filter(
+            (resource) => resource.category === "article"
+          );
+
+          setAllResourcesList(resources);
+          setAllCoursesList(courses);
+          setAllWebinarsList(webinars);
+          setAllArticlesList(articles);
         } else {
           throw new Error("Failed to fetch Resources");
         }
@@ -195,9 +214,13 @@ const ResourcePage = () => {
       {activeTab === "all" && (
         <ResourcesList allResourcesList={allResourcesList} />
       )}
-      {activeTab === "courses" && <Courses />}
-      {activeTab === "articles" && <Articles />}
-      {activeTab === "webinars" && <Webinars />}
+      {activeTab === "courses" && <Courses allCoursesList={allCoursesList} />}
+      {activeTab === "articles" && (
+        <Articles allArticlesList={allArticlesList} />
+      )}
+      {activeTab === "webinars" && (
+        <Webinars allWebinarsList={allWebinarsList} />
+      )}
     </AppDiv>
   );
 };

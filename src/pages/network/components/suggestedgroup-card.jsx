@@ -3,9 +3,42 @@ import { AppLabel, Appcaption } from "../../../utils/theme";
 import { Appfont } from "./../../../utils/theme/index";
 import { AppButton } from "../../../components/atoms/AppButton";
 import { PaperStyle } from "../../../utils/styles";
+import React from "react";
+import useCrypto from "../../../utils/hooks/encrypt";
+import axios from "axios";
 
 // eslint-disable-next-line react/prop-types
 const SuggestedGroupCard = ({ setShowNetwork }) => {
+  const { decryptedData } = useCrypto();
+  const url = import.meta.env.VITE_BASE_URL;
+  const [groupsList, setGroupsList] = React.useState([]);
+
+  React.useEffect(() => {
+    const getUserGroups = async () => {
+      try {
+        const token = decryptedData?.tokens?.access?.token;
+        if (!token) {
+          throw new Error("No token found in local storage");
+        }
+        const response = await axios.get(`${url}/group`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.status === 200 && response.data) {
+          setGroupsList(response?.data?.data?.result);
+        } else {
+          throw new Error("Failed to fetch Groups");
+        }
+      } catch (error) {
+        console.error("Error fetching Groups:", error);
+      }
+    };
+    getUserGroups();
+  }, [decryptedData]);
+
+  console.log("groups list has: ", groupsList);
+
   return (
     <AppDiv
       sx={{
@@ -79,7 +112,9 @@ const SuggestedGroupCard = ({ setShowNetwork }) => {
                       borderRadius: "10px 10px 0px 0px",
                     }}
                   />
-                  <Appfont sx={{ textAlign: "start", ml: 2 }}>Group Name</Appfont>
+                  <Appfont sx={{ textAlign: "start", ml: 2 }}>
+                    Group Name
+                  </Appfont>
                   <Appcaption sx={{ textAlign: "start", ml: 2 }}>
                     Yogyakarta - 2,351 Members
                   </Appcaption>

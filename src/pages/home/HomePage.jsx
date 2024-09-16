@@ -11,7 +11,7 @@ import useCrypto from "../../utils/hooks/encrypt";
 
 const HomePage = () => {
   const { decryptedData } = useCrypto();
-  console.log("decrypted data has: ", decryptedData);
+  // console.log("decrypted data has: ", decryptedData);
   const [chnageFeedData, setChangeFeedData] = useState(true); // Initialize
 
   return (
@@ -30,17 +30,17 @@ const HomePage = () => {
       {/* left - Displayed second on smaller screens */}
       <Grid item xs={12} md={2.5} order={{ xs: 2, md: 1 }}>
         <AppDiv>
-          StoriesCard <StoriesCard />
+          <StoriesCard />
           <AppDiv height={20} />
-          EventCard <EventCard />
-          <AppDiv height={20} />
-          SuggestionCard <SuggestionCard />
+          <EventCard />
+          {/* <AppDiv height={20} /> */}
+          {/* <SuggestionCard /> */}
         </AppDiv>
       </Grid>
       {/* right - Displayed third on smaller screens */}
       <Grid item xs={12} md={2.5} order={{ xs: 3, md: 3 }}>
         <AppDiv>
-          FriendsSidebar <FriendsSidebar />
+          <FriendsSidebar />
         </AppDiv>
       </Grid>
     </Grid>
