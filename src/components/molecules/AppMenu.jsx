@@ -21,7 +21,7 @@ export default function AppMenu() {
     localStorage.removeItem("auth");
     toast.success("Logout successfully");
     setTimeout(() => {
-      navigate("/login"); 
+      navigate("/"); 
     }, 1000);
   };
 
