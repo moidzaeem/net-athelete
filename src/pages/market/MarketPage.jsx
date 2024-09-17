@@ -1,16 +1,59 @@
+import React, { useState, useEffect } from "react";
 import AppDiv from "../../components/atoms/AppDiv";
 import { PaperStyle } from "../../utils/styles";
 import bgimag from "../../assets/images/bg.svg";
 import rec from "../../assets/images/Rectangle 94.svg";
-
 import { Appcaption, Appfont, Appheading } from "../../utils/theme";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
 import { AppPaper } from "../../components/atoms/AppPaper";
 import { AppAvatar } from "../../components/atoms/AppAvatar";
 import { AppButton } from "../../components/atoms/AppButton";
 import { beta } from "../../utils/theme/colors";
+import useCrypto from "../../utils/hooks/encrypt";
+import axios from "axios";
+import userPng from "../../assets/images/user.png"
 const bgColor = "#F6F8F9";
+
 const MarketPage = () => {
+  const { decryptedData } = useCrypto();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const url = import.meta.env.VITE_BASE_URL;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const token = decryptedData?.tokens?.access?.token;
+        if (!token) {
+          throw new Error("No token found in local storage");
+        }
+
+        const response = await axios.get(`${url}/user/get-all-users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.status === 200) {
+          setUsers(response.data.users || []);
+        } else {
+          throw new Error("Failed to fetch user data");
+        }
+      } catch (error) {
+        setError(error.message || "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [decryptedData, url]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <AppDiv
       sx={{
@@ -21,7 +64,7 @@ const MarketPage = () => {
       }}
     >
       <AppDiv style={{ position: "relative" }}>
-        <img src={bgimag} alt="" width={"100%"} />
+        <img src={bgimag} alt="Background" width="100%" />
         <Appheading
           style={{
             position: "absolute",
@@ -29,16 +72,16 @@ const MarketPage = () => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             textAlign: "center",
-            color: "white", // Optional: Change text color to improve visibility
-            zIndex: 1, // Optional: Ensure text is above the image
+            color: "white",
+            zIndex: 1,
             fontSize: 30,
           }}
         >
-          Marketplace{" "}
+          Marketplace
         </Appheading>
       </AppDiv>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={9}>
           <AppDiv
             sx={{
               ...PaperStyle,
@@ -48,12 +91,18 @@ const MarketPage = () => {
             }}
           >
             <Appheading sx={{ textAlign: "left" }}>Talent Search</Appheading>
-            <AppDiv sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
-              {[1, 2, 3].map((items) => {
-                return (
+            <AppDiv
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "space-between",
+              }}
+            >
+              {users.length > 0 ? (
+                users.map((user) => (
                   <AppPaper
                     elevation={0}
-                    key={items}
+                    key={user.id}
                     sx={{
                       display: "flex",
                       justifyContent: "center",
@@ -64,11 +113,16 @@ const MarketPage = () => {
                       borderRadius: 4,
                     }}
                   >
-                    <AppAvatar sx={{ width: 80, height: 80 }} src="/avatar.svg" />
+                    <AppAvatar
+                      sx={{ width: 80, height: 80 }}
+                      src={user.image || userPng}
+                    />
                     <Appfont sx={{ mt: 1 }}>
-                      <b>Tiontay Carroll</b>{" "}
+                      <b>{user.name || "Unknown Name"}</b>
                     </Appfont>
-                    <Appcaption>Hockey Player</Appcaption>
+                    <Appcaption>
+                      {user.experience?.[0]?.title || "Unknown Profession"}
+                    </Appcaption>
                     <AppButton
                       variant="contained"
                       sx={{ backgroundColor: beta, color: "black", mt: 2 }}
@@ -76,144 +130,17 @@ const MarketPage = () => {
                       View Details
                     </AppButton>
                   </AppPaper>
-                );
-              })}
-              <YellowCard />
+                ))
+              ) : (
+                <AppDiv>No users found.</AppDiv>
+              )}
+              {/* Uncomment YellowCard if needed */}
+              {/* <YellowCard /> */}
             </AppDiv>
           </AppDiv>
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <AppDiv
-            sx={{
-              ...PaperStyle,
-              width: "100%",
-              background: "white",
-              p: 2,
-            }}
-          >
-            <Appheading sx={{ textAlign: "left" }}>Transfer and Contacts</Appheading>
-            <AppDiv sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
-              {[1, 2, 3].map((items) => {
-                return (
-                  <AppPaper
-                    elevation={0}
-                    key={items}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      p: 2,
-                      background: bgColor,
-                      borderRadius: 4,
-                    }}
-                  >
-                    <AppAvatar sx={{ width: 80, height: 80 }} src={rec} />
-                    <Appfont sx={{ mt: 1, mb: 1 }}>
-                      <b>Heading</b>{" "}
-                    </Appfont>
-                    <Appcaption>
-                      <b>
-                        {" "}
-                        Lorem ipsum dolor <br /> consectetur a
-                      </b>
-                    </Appcaption>
-                  </AppPaper>
-                );
-              })}
-              <YellowCard />
-            </AppDiv>
-          </AppDiv>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <AppDiv
-            sx={{
-              ...PaperStyle,
-              width: "100%",
-              background: "white",
-              p: 2,
-            }}
-          >
-            <Appheading sx={{ textAlign: "left" }}>Equipment and Products</Appheading>
-            <AppDiv sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
-              {[1, 2, 3].map((items) => {
-                return (
-                  <AppPaper
-                    elevation={0}
-                    key={items}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      p: 2,
-                      background: bgColor,
-                      borderRadius: 4,
-                    }}
-                  >
-                    <AppAvatar sx={{ width: 80, height: 80 }} src={rec} />
-                    <Appfont sx={{ mt: 1, mb: 1 }}>
-                      <b>Product Title</b>{" "}
-                    </Appfont>
-                    <Appcaption sx={{ color: "red" }}>
-                      <b>$ 0.00</b>
-                    </Appcaption>
-                  </AppPaper>
-                );
-              })}
-              <YellowCard />
-            </AppDiv>
-          </AppDiv>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          {/* Content for the second row, second column */}
-          <Grid item xs={12} sm={6}>
-            <AppDiv
-              sx={{
-                ...PaperStyle,
-                width: "100%",
-                background: "white",
-                p: 2,
-              }}
-            >
-              <Appheading sx={{ textAlign: "left" }}>Professional Services</Appheading>
-              <AppDiv sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
-                {[1, 2, 3].map((items) => {
-                  return (
-                    <AppPaper
-                      elevation={0}
-                      key={items}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        p: 2,
-                        background: bgColor,
-                        borderRadius: 4,
-                      }}
-                    >
-                      <AppAvatar sx={{ width: 80, height: 80 }} src={rec} />
-                      <Appfont sx={{ mt: 1 }}>
-                        <b>Service Title</b>{" "}
-                      </Appfont>
-                      <Appcaption>
-                        <b> Lorem ipsum sit</b>
-                      </Appcaption>
-                      <AppButton
-                        variant="contained"
-                        sx={{ backgroundColor: beta, color: "black", mt: 2 }}
-                      >
-                        View Details
-                      </AppButton>
-                    </AppPaper>
-                  );
-                })}
-                <YellowCard />
-              </AppDiv>
-            </AppDiv>
-          </Grid>
-        </Grid>
+
+        {/* Uncomment and complete other sections if needed */}
       </Grid>
     </AppDiv>
   );
@@ -236,7 +163,7 @@ export const YellowCard = () => {
       }}
     >
       <Appfont sx={{ fontSize: 16 }}>
-        <b>Browse All</b>{" "}
+        <b>Browse All</b>
       </Appfont>
     </AppDiv>
   );

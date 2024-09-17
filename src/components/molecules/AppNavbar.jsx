@@ -19,7 +19,7 @@ import { gamma } from "../../utils/theme/colors";
 import AppMenu from "./AppMenu";
 
 // const pages = ["home",  "resources", "event","network", "market"];
-const pages = ["home",  "resources", "event","network"];
+const pages = ["home",  "resources", "event","network", 'market'];
 
 // eslint-disable-next-line react/prop-types
 function AppNavbar() {
