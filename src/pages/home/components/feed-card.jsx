@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppDiv from "../../../components/atoms/AppDiv";
 import { PaperStyle } from "../../../utils/styles";
 import { AppLabel, Appcaption, Appfont } from "../../../utils/theme";
@@ -15,7 +15,6 @@ import { secondary } from "../../../utils/theme/colors";
 import gallery from "../../../assets/svg/gallery.svg";
 import attach from "../../../assets/svg/attach.svg";
 import smile from "../../../assets/svg/smile.svg";
-import { useEffect, useState } from "react";
 import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -23,7 +22,6 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { PostAdd, Send } from "@mui/icons-material";
 import userPng from "../../../assets/images/user.png";
-
 import {
   getSavedFeeds,
   saveFeed,
@@ -33,25 +31,26 @@ import {
 
 const FeedCard = ({ chnageFeedData }) => {
   const [savedFeeds, setSavedFeeds] = useState(getSavedFeeds());
-
   const { decryptedData } = useCrypto();
   const [comment, setComment] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
   const [feedData, setFeedData] = useState([]); // Initialize
   const [profile, setProfile] = useState([]); // Initialize
-
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const [commentsToShow, setCommentsToShow] = useState(3); // Show 3 comments initially
+  const authenticatedUserId = decryptedData?.user?.id;
   const loadMoreComments = () => {
     setCommentsToShow((prev) => prev + 3); // Load 3 more comments each time
   };
+
   const handleMoreButtonClick = () => {
-    setShowDeleteButton(true); // Hide the delete button when more button is clicked
-    // You can add more logic here based on your requirements
+    setShowDeleteButton(true); // Show the delete button when more button is clicked
   };
 
   const url = import.meta.env.VITE_BASE_URL;
+
   const handleCommentChange = (e) => setComment(e.target.value);
+
   const fetchFeedData = async () => {
     try {
       const token = decryptedData?.tokens?.access?.token; // Get JWT token from local storage
@@ -89,7 +88,6 @@ const FeedCard = ({ chnageFeedData }) => {
       });
 
       if (response.status === 200) {
-        console.log(response.data);
         setProfile([response?.data?.data]); // Set fetched data to state
       } else {
         throw new Error("Failed to fetch user data");
@@ -145,18 +143,11 @@ const FeedCard = ({ chnageFeedData }) => {
         throw new Error("Failed to Like post");
       }
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error liking post:", error);
       setCommentLoading(false);
       toast.error("Failed to Like post. Please try again."); // Notify user of failure
     }
   };
-
-  // console.log(feedData)
-
-  // Handle loading state while fetching data
-  if (!feedData) {
-    return <p>Loading...</p>;
-  }
 
   const handleComment = async (id) => {
     const url = import.meta.env.VITE_BASE_URL;
@@ -183,7 +174,6 @@ const FeedCard = ({ chnageFeedData }) => {
       );
 
       if (response.status === 200) {
-        // console.log(response)
         setComment("");
         toast.success(response.data.message); // Notify user of success
         await fetchFeedData();
@@ -193,9 +183,8 @@ const FeedCard = ({ chnageFeedData }) => {
       }
     } catch (error) {
       setCommentLoading(false);
-      console.error("Error creating post:", error);
-
-      toast.error("Failed to comment on post Please try again."); // Notify user of failure
+      console.error("Error commenting on post:", error);
+      toast.error("Failed to comment on post. Please try again."); // Notify user of failure
     }
   };
 
@@ -210,33 +199,42 @@ const FeedCard = ({ chnageFeedData }) => {
   };
 
   const deleteFeed = async (feed_id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this post?");
+    if (!confirmDelete) {
+      return; // Exit if user cancels
+    }
+  
     const url = import.meta.env.VITE_BASE_URL;
-
+  
     try {
-      const token = decryptedData.tokens.access.token; // Get JWT token from local storage
+      const token = decryptedData.tokens.access.token;
       if (!token) {
         throw new Error("No token found in local storage");
       }
-
+  
       const response = await axios.delete(`${url}/feed/${feed_id}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       if (response.status === 200) {
-        if (response.data.status !== 400) {
-          toast.success("feed Deleted sucessfuly"); // Notify user of success
-          await fetchFeedData();
-        }
+        toast.success("Feed deleted successfully");
+        await fetchFeedData();
       } else {
         throw new Error("Failed to delete feed");
       }
     } catch (error) {
       console.error("Failed to delete feed:", error);
-      toast.error("Failed to delete feed Please try again."); // Notify user of failure
+      toast.error("Failed to delete feed. Please try again.");
     }
+  };
+  
+
+  // Determine if the current user is the owner of the post
+  const isOwner = (userId) => {
+    return userId === authenticatedUserId; // Assuming profile[0]?.id is the ID of the current user
   };
 
   return (
@@ -249,33 +247,27 @@ const FeedCard = ({ chnageFeedData }) => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2.5">
               <img
-                alt="Remy Sharp"
+                alt="User Avatar"
                 src={feed.user.image ? feed.user.image : userPng}
                 className="w-10 h-10 rounded-full"
               />
-              {/* {feed.user.image ? (
-                  <img
-                    src={feed.user.image}
-                    alt={feed.user.name}
-                    className="w-10 h-10 rounded-full"
-                  />
-                ) : (
-                  <p className="w-10 h-10 flex justify-center items-center text-2xl pb-1 uppercase rounded-full bg-[#92929D]">
-                    {feed?.user?.name.charAt(0)}
-                  </p>
-                )} */}
               <div className="flex flex-col gap-1">
                 <p className="text-sm text-[#171725] font-semibold capitalize">
-                  {feed?.user?.name}
+                  {feed.user.name}
                 </p>
                 <p className="text-xs text-[#92929D] font-normal">
                   {new Date(feed.createdAt).toLocaleString()}
                 </p>
               </div>
             </div>
-            <AppIconButton onClick={handleMoreButtonClick}>
+            {isOwner(feed.user.id) && (
+              <AppIconButton onClick={() => deleteFeed(feed.id)}>
+                <DeleteOutlineOutlinedIcon sx={{ color: "red" }} />
+              </AppIconButton>
+            )}
+            {/* <AppIconButton onClick={handleMoreButtonClick}>
               <MoreHorizOutlinedIcon />
-            </AppIconButton>
+            </AppIconButton> */}
           </div>
           <p className="mt-5 text-sm text-[#44444F] font-normal font-Roboto line-clamp-2">
             {feed.text}
@@ -418,7 +410,7 @@ const FeedCard = ({ chnageFeedData }) => {
                     return (
                       <div className="flex items-start gap-2" key={comment.id}>
                         <img
-                          alt="Remy Sharp"
+                          alt="User Avatar"
                           src={
                             comment.user?.image ? comment.user.image : userPng
                           }
@@ -479,11 +471,3 @@ const FeedCard = ({ chnageFeedData }) => {
 };
 
 export default FeedCard;
-
-// const iconSty = {
-//   ml: 2,
-//   display: {
-//     md: "block",
-//     xs: "none",
-//   },
-// };
