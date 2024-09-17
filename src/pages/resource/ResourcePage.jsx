@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Select, MenuItem } from "@mui/material";
 import { AppMainheading, Appfont } from "./../../utils/theme/index";
 import AppSearchBar from "./../../components/molecules/AppSearchBar";
@@ -26,14 +26,15 @@ const ResourcePage = () => {
   const { decryptedData } = useCrypto();
   const url = import.meta.env.VITE_BASE_URL;
 
-  const [allResourcesList, setAllResourcesList] = React.useState([]);
-  const [sortBy, setSortBy] = React.useState("");
-  const [activeTab, setActiveTab] = React.useState("all");
-  const [allCoursesList, setAllCoursesList] = React.useState([]);
-  const [allArticlesList, setAllArticlesList] = React.useState([]);
-  const [allWebinarsList, setAllWebinarsList] = React.useState([]);
+  const [allResourcesList, setAllResourcesList] = useState([]);
+  const [sortBy, setSortBy] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
+  const [allCoursesList, setAllCoursesList] = useState([]);
+  const [allArticlesList, setAllArticlesList] = useState([]);
+  const [allWebinarsList, setAllWebinarsList] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const getAllResources = async () => {
       try {
         const token = decryptedData?.tokens?.access?.token;
@@ -46,8 +47,6 @@ const ResourcePage = () => {
           },
         });
         if (response.status === 200) {
-          // setAllResourcesList(response.data.data.result);
-
           const resources = response.data.data.result;
           const courses = resources.filter(
             (resource) => resource.category === "course"
@@ -73,13 +72,86 @@ const ResourcePage = () => {
     getAllResources();
   }, [decryptedData]);
 
+  useEffect(() => {
+    const sortResources = (resources, order) => {
+      const sortedResources = [...resources].sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+
+        if (order === "newest") {
+          return dateB - dateA;
+        } else if (order === "oldest") {
+          return dateA - dateB;
+        }
+        return 0;
+      });
+      return sortedResources;
+    };
+
+    let sortedList = [];
+    switch (activeTab) {
+      case "all":
+        sortedList = sortResources(allResourcesList, sortBy);
+        setAllResourcesList(sortedList);
+        break;
+      case "courses":
+        sortedList = sortResources(allCoursesList, sortBy);
+        setAllCoursesList(sortedList);
+        break;
+      case "articles":
+        sortedList = sortResources(allArticlesList, sortBy);
+        setAllArticlesList(sortedList);
+        break;
+      case "webinars":
+        sortedList = sortResources(allWebinarsList, sortBy);
+        setAllWebinarsList(sortedList);
+        break;
+      default:
+        break;
+    }
+  }, [sortBy, allResourcesList, allCoursesList, allArticlesList, allWebinarsList, activeTab]);
+
+  useEffect(() => {
+    const filterResources = (resources) => {
+      if (!searchTerm) return resources;
+      return resources.filter(resource =>
+        resource.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    };
+
+    let filteredList = [];
+    switch (activeTab) {
+      case "all":
+        filteredList = filterResources(allResourcesList);
+        setAllResourcesList(filteredList);
+        break;
+      case "courses":
+        filteredList = filterResources(allCoursesList);
+        setAllCoursesList(filteredList);
+        break;
+      case "articles":
+        filteredList = filterResources(allArticlesList);
+        setAllArticlesList(filteredList);
+        break;
+      case "webinars":
+        filteredList = filterResources(allWebinarsList);
+        setAllWebinarsList(filteredList);
+        break;
+      default:
+        break;
+    }
+  }, [ activeTab, allResourcesList, allCoursesList, allArticlesList, allWebinarsList]);
+
   const handleChange = (event) => {
     setSortBy(event.target.value);
-    // You can perform sorting logic here based on the selected value
   };
 
   const handleTabClick = (page) => {
     setActiveTab(page);
+  };
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
   };
 
   return (
@@ -112,7 +184,7 @@ const ResourcePage = () => {
         }}
       >
         <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-          <AppSearchBar />
+          <AppSearchBar onChange={handleSearch} value={searchTerm} />
           <ResourceModal />
         </AppDiv>
         <AppDiv
@@ -144,10 +216,7 @@ const ResourcePage = () => {
             </Appfont>
           ))}
         </AppDiv>
-        {/* <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-          <AppIconButton sx={{ border: "1px solid #dcdcdd" }}>
-            <img src={filterIcon} alt="" width={20} />
-          </AppIconButton>
+        <AppDiv sx={{ display: "flex", alignItems: "center" }}>
           <Select
             value={sortBy}
             onChange={handleChange}
@@ -157,6 +226,7 @@ const ResourcePage = () => {
             sx={{
               border: "1px solid #dcdcdd",
               borderRadius: 4,
+              marginTop: 0,
               marginLeft: 2,
               height: 40,
               marginRight: 2,
@@ -167,8 +237,11 @@ const ResourcePage = () => {
             <MenuItem sx={{ fontSize: 12 }} value="" disabled>
               Sort By: Popular Class
             </MenuItem>
-            <MenuItem sx={{ fontSize: 12 }} value="popularity">
-              Popularity
+            <MenuItem sx={{ fontSize: 12 }} value="newest">
+              Newest
+            </MenuItem>
+            <MenuItem sx={{ fontSize: 12 }} value="oldest">
+              Oldest
             </MenuItem>
           </Select>
           <AppDiv
@@ -207,7 +280,7 @@ const ResourcePage = () => {
               <img src={boxes} alt="" width={16} />
             </AppButton>
           </AppDiv>
-        </AppDiv> */}
+        </AppDiv>
       </AppDiv>
       {/* Render content based on activeTab */}
       {activeTab === "all" && (

@@ -1,33 +1,20 @@
-/* eslint-disable react/prop-types */
+import React from 'react';
+import { Grid, Select, MenuItem } from '@mui/material';
 import AppDiv from "../../../components/atoms/AppDiv";
 import { PaperStyle } from "../../../utils/styles";
 import SearchSidebar from "../components/SearchSidebar";
 import { Appcaption, Appfont, Appheading } from "./../../../utils/theme/index";
-import {
-  Select,
-  MenuItem,
-  Box,
-  CssBaseline,
-  Drawer,
-  IconButton,
-  Divider,
-  List,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
 import { AppButton } from "../../../components/atoms/AppButton";
 import AppIconButton from "../../../components/atoms/AppIconButton";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import ShareIcon from "@mui/icons-material/Share";
 import { secondary } from "../../../utils/theme/colors";
 import PlaceIcon from "@mui/icons-material/Place";
-import React from "react";
 import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 
-// const AllEvents = ({ setshowEvents }) => {
 const AllEvents = () => {
   const { decryptedData } = useCrypto();
   const url = import.meta.env.VITE_BASE_URL;
@@ -35,39 +22,82 @@ const AllEvents = () => {
 
   const [sortBy, setSortBy] = React.useState("");
   const [allEventsList, setAllEventsList] = React.useState([]);
-  // const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [sortedEventsList, setSortedEventsList] = React.useState([]);
+
+  const getAllEvents = async () => {
+    try {
+      const token = decryptedData?.tokens?.access?.token;
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+
+      const response = await axios.get(`${url}/event/get-all-events`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setAllEventsList(response.data.data);
+        setSortedEventsList(response.data.data); // Initially display all events
+      } else {
+        throw new Error("Failed to fetch events");
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
+  };
+
+  const handleFilterChange = (filters) => {
+    let filteredEvents = [...allEventsList];
+    console.log(filters);
+
+    if (filters.dateRange.startDate) {
+      filteredEvents = filteredEvents.filter(event =>
+        new Date(event.start_date) >= new Date(filters.dateRange.startDate)
+      );
+    }
+    if (filters.dateRange.endDate) {
+      filteredEvents = filteredEvents.filter(event =>
+        new Date(event.end_date) <= new Date(filters.dateRange.endDate)
+      );
+    }
+    if (filters.followers) {
+      filteredEvents = filteredEvents.filter(event =>
+        event.follower_list.length >= filters.followers
+      );
+    }
+
+    if (filters.location) {
+      filteredEvents = filteredEvents.filter(event =>
+        event.location.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
+
+    console.log(filteredEvents);
+
+    setSortedEventsList(filteredEvents);
+  };
 
   const handleChange = (event) => {
-    setSortBy(event.target.value);
-    // You can perform sorting logic here based on the selected value
+    const value = event.target.value;
+    setSortBy(value);
+    sortEvents(value);
+  };
+
+  const sortEvents = (criteria) => {
+    let sortedList = [...sortedEventsList];
+    if (criteria === "popularity") {
+      sortedList.sort((a, b) => b.follower_list?.length - a.follower_list?.length);
+    } else if (criteria === "lastUpdated") {
+      sortedList.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+    }
+    setSortedEventsList(sortedList);
   };
 
   React.useEffect(() => {
-    const getAllEvents = async () => {
-      try {
-        const token = decryptedData?.tokens?.access?.token;
-        if (!token) {
-          throw new Error("No token found in local storage");
-        }
-
-        const response = await axios.get(`${url}/event/get-all-events`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.status === 200) {
-          setAllEventsList(response.data.data);
-        } else {
-          throw new Error("Failed to fetch user profile data");
-        }
-      } catch (error) {
-        console.error("Error fetching user profile data:", error);
-      }
-    };
-    getAllEvents();
+    getAllEvents(); // Fetch events initially without filters
   }, [decryptedData]);
-
-  console.log("all events list has: ", allEventsList);
 
   const handleFollowEvent = async (eventId) => {
     try {
@@ -87,6 +117,21 @@ const AllEvents = () => {
 
       if (response.status === 200) {
         toast.success(response.data.message);
+        // Update event follower list in local state
+        setAllEventsList((prevList) =>
+          prevList.map(event =>
+            event.id === eventId
+              ? { ...event, follower_list: [...event.follower_list, authenticatedUserId] }
+              : event
+          )
+        );
+        setSortedEventsList((prevList) =>
+          prevList.map(event =>
+            event.id === eventId
+              ? { ...event, follower_list: [...event.follower_list, authenticatedUserId] }
+              : event
+          )
+        );
       } else {
         throw new Error("Failed to Follow Event");
       }
@@ -113,6 +158,21 @@ const AllEvents = () => {
       );
       if (response.status === 200) {
         toast.success(response.data.message);
+        // Update event follower list in local state
+        setAllEventsList((prevList) =>
+          prevList.map(event =>
+            event.id === eventId
+              ? { ...event, follower_list: event.follower_list.filter(id => id !== authenticatedUserId) }
+              : event
+          )
+        );
+        setSortedEventsList((prevList) =>
+          prevList.map(event =>
+            event.id === eventId
+              ? { ...event, follower_list: event.follower_list.filter(id => id !== authenticatedUserId) }
+              : event
+          )
+        );
       } else {
         throw new Error("Failed to Un-Follow Event");
       }
@@ -124,41 +184,8 @@ const AllEvents = () => {
 
   return (
     <>
-      {/* <Box sx={{ display: "flex" }}>
-        <CssBaseline />
-        <Drawer
-          sx={{
-            width: 240,
-            flexShrink: 0,
-            "& .MuiDrawer-paper": { width: 240, boxSizing: "border-box" },
-          }}
-          variant="persistent"
-          anchor="left"
-          open={drawerOpen}
-        >
-          <DrawerHeader>
-            <IconButton onClick={() => setDrawerOpen(false)}>
-              <ChevronLeft />
-              <ChevronRight />
-            </IconButton>
-          </DrawerHeader>
-          <Divider />
-          <div>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil
-            expedita dolore modi tempora quaerat accusamus quo fugiat eaque
-            voluptates unde, a eligendi voluptatem labore, sint voluptas
-            similique! Harum, iusto aperiam?
-          </div>
-        </Drawer>
-        <div>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim
-          exercitationem consequatur nihil nostrum mollitia libero magnam
-          reprehenderit ex id distinctio quibusdam maxime assumenda facere
-          aliquid totam, vitae laudantium iste perferendis?
-        </div>
-      </Box> */}
       <Grid container mt={8}>
-        {/* <Grid
+        <Grid
           item
           xs={12}
           md={2.5}
@@ -176,9 +203,10 @@ const AllEvents = () => {
               },
             }}
           >
-          <SearchSidebar />
+            <SearchSidebar onFilterChange={handleFilterChange} /> 
+            
           </AppDiv>
-        </Grid> */}
+        </Grid>
         <Grid item xs={12} md={9.3} className="px-6 md:px-10 py:10">
           {/* heading */}
           <AppDiv
@@ -226,7 +254,7 @@ const AllEvents = () => {
           </AppDiv>
           {/* card */}
           <div className="flex flex-col gap-7.5 mt-7.5">
-            {allEventsList.map((event, index) => {
+            {sortedEventsList.map((event) => {
               const startDate = new Date(event.start_date);
               const month = startDate.toLocaleString("default", {
                 month: "long",
@@ -278,19 +306,10 @@ const AllEvents = () => {
                           <PlaceIcon fontSize="small" sx={{ ml: 1 }} />
                         </AppDiv>
                         <AppDiv sx={{ display: "flex" }}>
-                          {/* <img src="/Member.svg" alt="" /> */}
-                          <Appcaption sx={{ ml: 2 }}>
-                            {event.follower_list?.length} People Join
+                          <Appcaption sx={{ mt: 1, color: secondary }}>
+                            {`${startDate.toLocaleString('default', { month: 'short' })} ${date}`}
                           </Appcaption>
                         </AppDiv>
-                        {/* <AppDiv
-                          sx={{ display: "flex", alignItems: "center", mt: 1 }}
-                        >
-                          <Appcaption>E-commerce, Design</Appcaption>
-                          <Appcaption sx={{ ml: 2 }}>
-                            <b>158</b>
-                          </Appcaption>
-                        </AppDiv> */}
                       </AppDiv>
                     </AppDiv>
                     <AppDiv>

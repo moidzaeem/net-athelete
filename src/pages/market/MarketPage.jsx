@@ -11,7 +11,7 @@ import { AppButton } from "../../components/atoms/AppButton";
 import { beta } from "../../utils/theme/colors";
 import useCrypto from "../../utils/hooks/encrypt";
 import axios from "axios";
-import userPng from "../../assets/images/user.png"
+import userPng from "../../assets/images/user.png";
 const bgColor = "#F6F8F9";
 
 const MarketPage = () => {
@@ -81,7 +81,7 @@ const MarketPage = () => {
         </Appheading>
       </AppDiv>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={9}>
+        <Grid item xs={12} sm={6}>
           <AppDiv
             sx={{
               ...PaperStyle,
@@ -136,9 +136,175 @@ const MarketPage = () => {
               )}
               {/* Uncomment YellowCard if needed */}
               {/* <YellowCard /> */}
+
             </AppDiv>
+            
           </AppDiv>
         </Grid>
+
+        <Grid item xs={12} sm={6}>
+                <AppDiv
+                  sx={{
+                    ...PaperStyle,
+                    width: "100%",
+                    background: "white",
+                    p: 2,
+                  }}
+                >
+                  <Appheading sx={{ textAlign: "left" }}>
+                    Transfer and Contacts
+                  </Appheading>
+                  <AppDiv
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {[1, 2, 3].map((items) => {
+                      return (
+                        <AppPaper
+                          elevation={0}
+                          key={items}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            p: 2,
+                            background: bgColor,
+                            borderRadius: 4,
+                          }}
+                        >
+                          <AppAvatar sx={{ width: 80, height: 80 }} src={rec} />
+                          <Appfont sx={{ mt: 1, mb: 1 }}>
+                            <b>Heading</b>{" "}
+                          </Appfont>
+                          <Appcaption>
+                            <b>
+                              {" "}
+                              Lorem ipsum dolor <br /> consectetur a
+                            </b>
+                          </Appcaption>
+                        </AppPaper>
+                      );
+                    })}
+                    <YellowCard />
+                  </AppDiv>
+                </AppDiv>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <AppDiv
+                  sx={{
+                    ...PaperStyle,
+                    width: "100%",
+                    background: "white",
+                    p: 2,
+                  }}
+                >
+                  <Appheading sx={{ textAlign: "left" }}>
+                    Equipment and Products
+                  </Appheading>
+                  <AppDiv
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {[1, 2, 3].map((items) => {
+                      return (
+                        <AppPaper
+                          elevation={0}
+                          key={items}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            p: 2,
+                            background: bgColor,
+                            borderRadius: 4,
+                          }}
+                        >
+                          <AppAvatar sx={{ width: 80, height: 80 }} src={rec} />
+                          <Appfont sx={{ mt: 1, mb: 1 }}>
+                            <b>Product Title</b>{" "}
+                          </Appfont>
+                          <Appcaption sx={{ color: "red" }}>
+                            <b>$ 0.00</b>
+                          </Appcaption>
+                        </AppPaper>
+                      );
+                    })}
+                    <YellowCard />
+                  </AppDiv>
+                </AppDiv>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                {/* Content for the second row, second column */}
+                <Grid item xs={12} sm={6}>
+                  <AppDiv
+                    sx={{
+                      ...PaperStyle,
+                      width: "100%",
+                      background: "white",
+                      p: 2,
+                    }}
+                  >
+                    <Appheading sx={{ textAlign: "left" }}>
+                      Professional Services
+                    </Appheading>
+                    <AppDiv
+                      sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      {[1, 2, 3].map((items) => {
+                        return (
+                          <AppPaper
+                            elevation={0}
+                            key={items}
+                            sx={{
+                              display: "flex",
+                              justifyContent: "center",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              p: 2,
+                              background: bgColor,
+                              borderRadius: 4,
+                            }}
+                          >
+                            <AppAvatar
+                              sx={{ width: 80, height: 80 }}
+                              src={rec}
+                            />
+                            <Appfont sx={{ mt: 1 }}>
+                              <b>Service Title</b>{" "}
+                            </Appfont>
+                            <Appcaption>
+                              <b> Lorem ipsum sit</b>
+                            </Appcaption>
+                            <AppButton
+                              variant="contained"
+                              sx={{
+                                backgroundColor: beta,
+                                color: "black",
+                                mt: 2,
+                              }}
+                            >
+                              View Details
+                            </AppButton>
+                          </AppPaper>
+                        );
+                      })}
+                      <YellowCard />
+                    </AppDiv>
+                  </AppDiv>
+                </Grid>
+              </Grid>
 
         {/* Uncomment and complete other sections if needed */}
       </Grid>

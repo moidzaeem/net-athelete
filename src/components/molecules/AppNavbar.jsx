@@ -125,16 +125,16 @@ function AppNavbar() {
             ))}
           </Box>
           {/* search */}
-          {/* <AppSearchBar /> */}
+          <AppSearchBar />
           <IconButton
             sx={{ ml: 1, mr: 1 }}
             size="large"
             aria-label="show 17 new notifications"
             color="inherit"
           >
-            {/* <Badge badgeContent={17} color="error">
+            <Badge badgeContent={0} color="error">
               <NotificationsIcon style={{ color: "#92929D" }} />
-            </Badge> */}
+            </Badge>
           </IconButton>
           <Box sx={{ flexGrow: 0 }}>
             <AppMenu />

@@ -1,49 +1,59 @@
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import { MenuItem } from "@mui/material";
-import { FormControl } from "@mui/material";
-import InputLabel from "@mui/material/InputLabel";
-import { Select } from "@mui/material";
-import AppDiv from "../../../components/atoms/AppDiv";
-import { Appcaption, Appfont, Appheading } from "../../../utils/theme";
-import AppSearchBar from "../../../components/molecules/AppSearchBar";
-// import { AppButton } from "../../../components/atoms/AppButton";
-import ButtonGroup from "@mui/material/ButtonGroup";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-// import {
-//   ArrowDownward,
-//   ArrowDropDown,
-//   ArrowDropDownSharp,
-// } from "@mui/icons-material";
-import React from "react";
+import React from 'react';
+import { TextField, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import AppDiv from '../../../components/atoms/AppDiv';
+import { Appcaption, Appfont, Appheading } from '../../../utils/theme';
+import AppSearchBar from '../../../components/molecules/AppSearchBar';
 
-const options = [
-  {
-    label: "1",
-  },
-  {
-    label: "2",
-  },
-];
+const SearchSidebar = ({ onFilterChange }) => {
+  const [selectedLocation, setSelectedLocation] = React.useState(""); // State for location
 
-const SearchSidebar = () => {
-  const [selectedLocationRange, setSelectedLocationRange] = React.useState("");
+  const [selectedRequirements, setSelectedRequirements] = React.useState({
+    freshGraduate: false,
+    studentCollege: false,
+    marriage: false,
+  });
 
-  const handleLocationRangeChange = (value) => {
-    setSelectedLocationRange(value);
+  const [dateRange, setDateRange] = React.useState({
+    startDate: '',
+    endDate: '',
+  });
+
+  // Handle requirement changes
+  const handleRequirementChange = (event) => {
+    const { name, checked } = event.target;
+    setSelectedRequirements(prev => {
+      const updated = { ...prev, [name]: checked };
+      onFilterChange({ ...updated, dateRange, location: selectedLocation });
+      return updated;
+    });
+  };
+
+  // Handle date range changes
+  const handleDateRangeChange = (field) => (event) => {
+    const { value } = event.target;
+    setDateRange(prev => {
+      const updated = { ...prev, [field]: value };
+      onFilterChange({ ...selectedRequirements, dateRange: updated, location: selectedLocation });
+      return updated;
+    });
+  };
+
+  // Handle location text field change
+  const handleLocationChange = (event) => {
+    const location = event.target.value;
+    console.log(location);
+    setSelectedLocation(location);
+    onFilterChange({ ...selectedRequirements, dateRange, location });
   };
 
   return (
     <div className="fixed mt-8">
       <AppDiv
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          // mt: 3,
-          // mt: 4,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
         <Appheading>Search Filter</Appheading>
@@ -52,110 +62,66 @@ const SearchSidebar = () => {
       <AppDiv height={20} />
       <AppSearchBar />
       <AppDiv height={20} />
-      <div className="mb-2 flex justify-between items-center">
-        <p className="text-xs uppercase text-[#92929D] font-poppins font-medium">
-          Categories
-        </p>
-        <KeyboardArrowDownIcon />
-      </div>
-      <FormControl variant="standard" fullWidth>
-        <InputLabel>
-          <Appcaption sx={{ fontSize: 15 }}>{"Pick from list"}</Appcaption>
-        </InputLabel>
-        <Select>
-          {options?.map((option, index) => (
-            <MenuItem key={index} value={option.label}>
-              <Appcaption sx={{ color: "black", textAlign: "left" }}>
-                {option.label}
-              </Appcaption>
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
 
+      {/* Additional Requirements */}
+      {/* Uncomment this section if requirements are needed
       <div className="mt-7.5 mb-2 flex justify-between items-center">
-        <p className="text-xs uppercase text-[#92929D] font-poppins font-medium">
-          Company
-        </p>
-        <KeyboardArrowDownIcon />
-      </div>
-      <FormControl variant="standard" fullWidth>
-        <InputLabel>
-          <Appcaption sx={{ fontSize: 15 }}>Adding a company</Appcaption>
-        </InputLabel>
-        <Select>
-          {options?.map((option, index) => (
-            <MenuItem key={index} value={option.label}>
-              <Appcaption sx={{ color: "black", textAlign: "left" }}>
-                {option.label}
-              </Appcaption>
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <div className="mt-7.5 mb-2 flex justify-between items-center">
-        <p className="text-xs uppercase text-[#92929D] font-poppins font-medium">
-          Additional Requirements
-        </p>
+        <p className="text-xs uppercase text-[#92929D] font-poppins font-medium">Additional Requirements</p>
         <KeyboardArrowDownIcon />
       </div>
       <FormGroup>
         <FormControlLabel
-          control={<Checkbox color="success" size="small" defaultChecked />}
+          control={<Checkbox color="success" size="small" checked={selectedRequirements.freshGraduate} onChange={handleRequirementChange} name="freshGraduate" />}
           label="Fresh Graduate Allow"
         />
         <FormControlLabel
-          required
-          control={<Checkbox color="success" size="small" />}
+          control={<Checkbox color="success" size="small" checked={selectedRequirements.studentCollege} onChange={handleRequirementChange} name="studentCollege" />}
           label="Student College"
         />
         <FormControlLabel
-          required
-          control={<Checkbox color="success" size="small" />}
+          control={<Checkbox color="success" size="small" checked={selectedRequirements.marriage} onChange={handleRequirementChange} name="marriage" />}
           label="Marriage"
         />
       </FormGroup>
+      */}
 
-      <p className="mt-7.5 mb-2 text-xs uppercase text-[#92929D] font-poppins font-medium">
-        Location Range
-      </p>
-      <ButtonGroup
-        fullWidth
-        variant="contained"
-        className="!w-auto !rounded-lg !bg-[#F1F1F5] !shadow-none"
-      >
-        <div
-          className={`py-1 px-3 rounded-lg ${
-            selectedLocationRange === 5
-              ? "bg-[#27CEF8] text-white"
-              : "bg-transparent text-[#44444F]"
-          }`}
-          onClick={() => handleLocationRangeChange(5)}
-        >
-          0-5 KM
+      {/* Date Range */}
+      <div className="mt-7.5 mb-2">
+        <p className="text-xs uppercase text-[#92929D] font-poppins font-medium">Date Range</p>
+        <div className="mt-2">
+          <TextField
+            type="date"
+            label="Start Date"
+            value={dateRange.startDate}
+            onChange={handleDateRangeChange('startDate')}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
         </div>
-        <button
-          className={`py-1 px-3 rounded-lg ${
-            selectedLocationRange === 20
-              ? "bg-[#27CEF8] text-white"
-              : "bg-transparent text-[#44444F]"
-          }`}
-          onClick={() => handleLocationRangeChange(20)}
-        >
-          6-20 KM
-        </button>
-        <div
-          className={`py-1 px-3 rounded-lg ${
-            selectedLocationRange === 50
-              ? "bg-[#27CEF8] text-white"
-              : "bg-transparent text-[#44444F]"
-          }`}
-          onClick={() => handleLocationRangeChange(50)}
-        >
-          20-50 KM
+        <div className="mt-2">
+          <TextField
+            type="date"
+            label="End Date"
+            value={dateRange.endDate}
+            onChange={handleDateRangeChange('endDate')}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
         </div>
-      </ButtonGroup>
+
+        {/* Location Filter */}
+        <TextField
+          label="Location"
+          value={selectedLocation}
+          onChange={handleLocationChange}
+          fullWidth
+          variant="outlined"
+          sx={{
+            borderRadius: 4,
+            marginBottom: 2,
+          }}
+        />
+      </div>
     </div>
   );
 };

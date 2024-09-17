@@ -30,19 +30,19 @@ const HomePage = () => {
       {/* left - Displayed second on smaller screens */}
       <Grid item xs={12} md={2.5} order={{ xs: 2, md: 1 }}>
         <AppDiv>
-          {/* <StoriesCard /> */}
+          <StoriesCard />
           <AppDiv height={20} />
           <EventCard />
-          {/* <AppDiv height={20} /> */}
-          {/* <SuggestionCard /> */}
+          <AppDiv height={20} />
+          <SuggestionCard />
         </AppDiv>
       </Grid>
       {/* right - Displayed third on smaller screens */}
-      {/* <Grid item xs={12} md={2.5} order={{ xs: 3, md: 3 }}>
+      <Grid item xs={12} md={2.5} order={{ xs: 3, md: 3 }}>
         <AppDiv>
           <FriendsSidebar />
         </AppDiv>
-      </Grid> */}
+      </Grid>
     </Grid>
   );
 };
