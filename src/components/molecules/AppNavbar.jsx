@@ -18,7 +18,8 @@ import { useLocation } from "react-router-dom";
 import { gamma } from "../../utils/theme/colors";
 import AppMenu from "./AppMenu";
 
-const pages = ["home",  "resources", "event","network", "market"];
+// const pages = ["home",  "resources", "event","network", "market"];
+const pages = ["home",  "resources", "event","network"];
 
 // eslint-disable-next-line react/prop-types
 function AppNavbar() {
@@ -43,16 +44,18 @@ function AppNavbar() {
           <AppDiv sx={{ display: { xs: "flex", lg: "none" }, mr: 1 }}>
             <img onClick={handleOpenNavMenu} src="/menu-left-alt.svg" alt="" />
           </AppDiv>
-          <AppAvatar
-            src="/logo.svg"
-            alt=""
-            sx={{ display: { xs: "flex", lg: "flex" }, mr: 1 }}
-          />
-          <Appheading
-            sx={{ color: "#44444F", display: { xs: "none", sm: "flex" } }}
-          >
-            Net Athlete
-          </Appheading>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+      <AppAvatar
+        src="/logo.svg"
+        alt=""
+        sx={{ display: { xs: "flex", lg: "flex" }, mr: 1 }}
+      />
+      <Appheading
+        sx={{ color: "#44444F", display: { xs: "none", sm: "flex" } }}
+      >
+        Net Athlete
+      </Appheading>
+    </Link>
           {/* small screen */}
           <Drawer
             anchor="left"
@@ -122,7 +125,7 @@ function AppNavbar() {
             ))}
           </Box>
           {/* search */}
-          <AppSearchBar />
+          {/* <AppSearchBar /> */}
           <IconButton
             sx={{ ml: 1, mr: 1 }}
             size="large"
