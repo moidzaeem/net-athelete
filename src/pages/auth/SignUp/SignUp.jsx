@@ -69,9 +69,6 @@ const SignUpPage = () => {
     });
   };
 
-  
-  
-  
   const url = import.meta.env.VITE_BASE_URL;
 
   const handleSubmit = (event) => {
@@ -85,7 +82,7 @@ const SignUpPage = () => {
     })
       .then((response) => {
         if (!response.ok) {
-          console.log(response)
+          console.log(response);
           throw new Error("Network response was not ok");
         }
         return response.json();
@@ -253,7 +250,7 @@ const SignUpPage = () => {
                       <InputAdornment position="start">
                         <MailOutlineIcon sx={{ width: "14px" }} />
                       </InputAdornment>
-                    )
+                    ),
                   }}
                 />
                 {/* Passwords */}
@@ -353,16 +350,25 @@ const SignUpPage = () => {
                 >
                   Get Started
                 </AppButton>
-              </Paper>
-              <Appfont sx={{ color: "#92929D", mb: 8 }}>
-                By clicking &#34;Get Started - Free!&#34; I agree to Terms of
-                Service{" "}
+                <Appfont sx={{ color: "#92929D", mt: 5}}>
+                By clicking &#34;Get Started - Free! {" "}
+                <a
+                  href="/src/assets/privacy-policy-net-athlete.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#007bff", textDecoration: "underline" }}
+                >
+                  I agree to Terms of Service{" "}
+                </a>
               </Appfont>
               <Appfont sx={{ mt: 1, mb: 10 }}>
                 <Link to={RoutePath.SIGNIN} style={{ color: gamma }}>
                   Already user ?
                 </Link>
               </Appfont>
+              </Paper>
+              
+             
             </Grid>
           </Grid>
         </Grid>
