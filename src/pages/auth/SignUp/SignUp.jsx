@@ -353,7 +353,7 @@ const SignUpPage = () => {
                 <Appfont sx={{ color: "#92929D", mt: 5}}>
                 By clicking &#34;Get Started - Free! {" "}
                 <a
-                  href="/src/assets/privacy-policy-net-athlete.pdf"
+                  href="https://net-athlete.nyc3.digitaloceanspaces.com/privacy-policy-net-athlete.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: "#007bff", textDecoration: "underline" }}
