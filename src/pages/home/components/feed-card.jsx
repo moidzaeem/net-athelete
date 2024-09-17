@@ -22,9 +22,14 @@ import { toast } from "react-toastify";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { PostAdd, Send } from "@mui/icons-material";
-import userPng from "../../../assets/images/user.png"
+import userPng from "../../../assets/images/user.png";
 
-import { getSavedFeeds, saveFeed, removeSavedFeed, isFeedSaved } from "../../../utils/localStorage";
+import {
+  getSavedFeeds,
+  saveFeed,
+  removeSavedFeed,
+  isFeedSaved,
+} from "../../../utils/localStorage";
 
 const FeedCard = ({ chnageFeedData }) => {
   const [savedFeeds, setSavedFeeds] = useState(getSavedFeeds());
@@ -245,11 +250,7 @@ const FeedCard = ({ chnageFeedData }) => {
             <div className="flex items-center gap-2.5">
               <img
                 alt="Remy Sharp"
-                src={
-                  feed.user.image
-                    ? feed.user.image
-                    : userPng
-                }
+                src={feed.user.image ? feed.user.image : userPng}
                 className="w-10 h-10 rounded-full"
               />
               {/* {feed.user.image ? (
@@ -280,44 +281,52 @@ const FeedCard = ({ chnageFeedData }) => {
             {feed.text}
           </p>
           <Grid container gap={1} sx={{ alignItems: "center", mt: 3 }}>
-            <Grid xs={5.5}>
-              <img
-                style={{
-                  objectFit: "cover",
-                  width: "100%",
-                  height: "400px",
-                  borderRadius: "20px",
-                }}
-                src={feed.media}
-                alt=""
-              />
-            </Grid>
-            <Grid xs={5.5}>
-              <div>
-                <img
-                  style={{
-                    objectFit: "cover",
-                    width: "100%",
-                    height: "200px",
-                    borderRadius: "20px",
-                  }}
-                  src={feed.media}
-                  alt=""
-                />
-              </div>
-              <div>
-                <img
-                  style={{
-                    objectFit: "cover",
-                    width: "100%",
-                    height: "200px",
-                    borderRadius: "20px",
-                  }}
-                  src={feed.media}
-                  alt=""
-                />
-              </div>
-            </Grid>
+            {feed.media ? (
+              <>
+                <Grid item xs={5.5}>
+                  <img
+                    style={{
+                      objectFit: "cover",
+                      width: "100%",
+                      height: "400px",
+                      borderRadius: "20px",
+                    }}
+                    src={feed.media}
+                    alt="Media content"
+                  />
+                </Grid>
+                <Grid item xs={5.5}>
+                  <div>
+                    <img
+                      style={{
+                        objectFit: "cover",
+                        width: "100%",
+                        height: "200px",
+                        borderRadius: "20px",
+                      }}
+                      src={feed.media}
+                      alt="Media content"
+                    />
+                  </div>
+                  <div>
+                    <img
+                      style={{
+                        objectFit: "cover",
+                        width: "100%",
+                        height: "200px",
+                        borderRadius: "20px",
+                      }}
+                      src={feed.media}
+                      alt="Media content"
+                    />
+                  </div>
+                </Grid>
+              </>
+            ) : (
+              <Grid item xs={12}>
+                {/* <p>No media available</p> */}
+              </Grid>
+            )}
           </Grid>
 
           <Divider sx={{ my: 2 }} />
@@ -376,70 +385,72 @@ const FeedCard = ({ chnageFeedData }) => {
               </span>
             </div> */}
             <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
-            onClick={() => handleSaveFeed(feed.id)}
-          >
-            <TurnedInIcon
-              sx={{ color: isFeedSaved(feed.id) ? "green" : secondary }}
-            />
-            <span style={{ marginLeft: "0.5rem" }}>
-              {isFeedSaved(feed.id) ? "Saved" : "Save"}
-            </span>
-          </div>
+              style={{
+                display: "flex",
+                alignItems: "center",
+                cursor: "pointer",
+              }}
+              onClick={() => handleSaveFeed(feed.id)}
+            >
+              <TurnedInIcon
+                sx={{ color: isFeedSaved(feed.id) ? "green" : secondary }}
+              />
+              <span style={{ marginLeft: "0.5rem" }}>
+                {isFeedSaved(feed.id) ? "Saved" : "Save"}
+              </span>
+            </div>
           </div>
           <Divider sx={{ my: 2 }} />
           {feed?.comments && feed.comments.length > 0 && (
-             <div className="grid gap-5">
-             {feed?.comments?.length > 0 && (
-               <div className="grid gap-4">
-                 {feed?.comments?.slice(0, commentsToShow).map((comment) => {
-                   const createdAt = new Date(comment.createdAt);
-                   const formattedDate = createdAt.toLocaleString("en-US", {
-                     day: "numeric",
-                     month: "long",
-                     hour: "2-digit",
-                     minute: "2-digit",
-                     hour12: true,
-                   });
-       
-                   return (
-                     <div className="flex items-start gap-2" key={comment.id}>
-                       <img
-                         alt="Remy Sharp"
-                         src={comment.user?.image ? comment.user.image : userPng}
-                         className="w-10 h-10 rounded-full"
-                       />
-                       <div className="flex flex-col gap-2 bg-[#f7f7f7] flex-grow rounded-md p-2.5">
-                         <div className="flex flex-col gap-1">
-                           <p className="text-xs text-[#000000e6] font-semibold capitalize">
-                             {comment.user?.name}
-                           </p>
-                           <p className="text-[10px] text-[#92929D] font-normal">
-                             {formattedDate}
-                           </p>
-                         </div>
-                         <p className="text-sm text-[#000000e6] font-normal">
-                           {comment.text}
-                         </p>
-                       </div>
-                     </div>
-                   );
-                 })}
-                 {commentsToShow < feed?.comments?.length && (
-                   <button
-                     onClick={loadMoreComments}
-                     className="text-blue-500 text-sm mt-2"
-                   >
-                     Load More Comments
-                   </button>
-                 )}
-               </div>
-             )}
-           </div>
+            <div className="grid gap-5">
+              {feed?.comments?.length > 0 && (
+                <div className="grid gap-4">
+                  {feed?.comments?.slice(0, commentsToShow).map((comment) => {
+                    const createdAt = new Date(comment.createdAt);
+                    const formattedDate = createdAt.toLocaleString("en-US", {
+                      day: "numeric",
+                      month: "long",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    });
+
+                    return (
+                      <div className="flex items-start gap-2" key={comment.id}>
+                        <img
+                          alt="Remy Sharp"
+                          src={
+                            comment.user?.image ? comment.user.image : userPng
+                          }
+                          className="w-10 h-10 rounded-full"
+                        />
+                        <div className="flex flex-col gap-2 bg-[#f7f7f7] flex-grow rounded-md p-2.5">
+                          <div className="flex flex-col gap-1">
+                            <p className="text-xs text-[#000000e6] font-semibold capitalize">
+                              {comment.user?.name}
+                            </p>
+                            <p className="text-[10px] text-[#92929D] font-normal">
+                              {formattedDate}
+                            </p>
+                          </div>
+                          <p className="text-sm text-[#000000e6] font-normal">
+                            {comment.text}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {commentsToShow < feed?.comments?.length && (
+                    <button
+                      onClick={loadMoreComments}
+                      className="text-blue-500 text-sm mt-2"
+                    >
+                      Load More Comments
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           )}
           <TextField
             fullWidth

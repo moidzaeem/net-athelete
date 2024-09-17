@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AppDiv from "../../../components/atoms/AppDiv";
 import { AppLabel } from "../../../utils/theme";
 import { Avatar, Divider, TextField } from "@mui/material";
@@ -7,8 +7,9 @@ import gallery from "../../../assets/svg/gallery.svg";
 import { toast } from "react-toastify";
 import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
-import  userPng from "../../../assets/images/user.png"
-const PostCard = ({ chnageFeedData, setChangeFeedData }) => {
+import userPng from "../../../assets/images/user.png";
+
+const PostCard = ({ changeFeedData, setChangeFeedData }) => {
   const { decryptedData } = useCrypto();
   const [postContent, setPostContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,88 +21,82 @@ const PostCard = ({ chnageFeedData, setChangeFeedData }) => {
     setSelectedImage(file);
   };
 
-  useEffect(() => {
-    const handleSubmit = async () => {
-      setLoading(true);
-      const url = import.meta.env.VITE_BASE_URL; // Assuming you are using Vite for environment variables
-
-      try {
-        const token = decryptedData.tokens.access.token; // Get JWT token from local storage
-        if (!token) {
-          throw new Error("No token found in local storage");
-        }
-
-        console.log(media);
-        const response = await axios.post(
-          `${url}/feed`,
-          {
-            text: postContent,
-            media: media, // Use the media state here
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          setLoading(false);
-          setChangeFeedData(!chnageFeedData);
-          setPostContent("");
-          toast.success(response.data.message); // Notify user of success
-          // Optionally, reset form fields or take other actions after successful post creation
-        } else {
-          throw new Error("Failed to create post");
-        }
-      } catch (error) {
-        setLoading(false);
-        console.error("Error creating post:", error);
-        toast.error("Failed to create post. Please try again."); // Notify user of failure
-      }
-    };
-
-    if (media) {
-      handleSubmit();
-    }
-  }, [media]);
-
-  const handleFile = async () => {
+  const handleSubmit = async () => {
     setLoading(true);
-    const url = import.meta.env.VITE_BASE_URL; // Assuming you are using Vite for environment variables
+    const url = import.meta.env.VITE_BASE_URL;
 
     try {
-      const token = decryptedData.tokens.access.token; // Get JWT token from local storage
+      const token = decryptedData.tokens.access.token;
       if (!token) {
         throw new Error("No token found in local storage");
       }
 
-      const formData = new FormData();
-      formData.append("file", selectedImage);
-
-      const response = await axios.post(`${url}/user/upload-file`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+      const response = await axios.post(
+        `${url}/feed`,
+        {
+          text: postContent,
+          media: media,
         },
-      });
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 200) {
-        if (response.data.status !== 400) {
-          // setMedia(response.data.data.upload_link); // Set media state with the uploaded file link
-          setMedia(response.data.data.upload_link); // Set media state with the uploaded file link
-          // handleSubmit(); // Call handleSubmit after successful file upload
-        }
         setLoading(false);
-        toast.error(response.data.message); // Notify user of success or failure
+        setChangeFeedData(!changeFeedData);
+        setPostContent("");
+        toast.success(response.data.message);
       } else {
-        throw new Error("Failed to upload file");
+        throw new Error("Failed to create post");
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error creating post:", error);
+      toast.error("Failed to create post. Please try again.");
+    }
+  };
+
+  const handleFile = async () => {
+    setLoading(true);
+    const url = import.meta.env.VITE_BASE_URL;
+
+    try {
+      const token = decryptedData.tokens.access.token;
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+
+      if (selectedImage) {
+        const formData = new FormData();
+        formData.append("file", selectedImage);
+
+        const response = await axios.post(`${url}/user/upload-file`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        if (response.status === 200) {
+          if (response.data.status !== 400) {
+            setMedia(response.data.data.upload_link);
+            await handleSubmit(); // Call handleSubmit after successful file upload
+          }
+          toast.success(response.data.message);
+        } else {
+          throw new Error("Failed to upload file");
+        }
+      } else {
+        await handleSubmit(); // Call handleSubmit if no file is selected
       }
     } catch (error) {
       console.error("Error uploading file:", error);
       setLoading(false);
-      toast.error("Failed to upload file. Please try again."); // Notify user of failure
+      toast.error("Failed to upload file. Please try again.");
     }
   };
 
