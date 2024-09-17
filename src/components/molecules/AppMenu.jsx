@@ -5,11 +5,13 @@ import { AppAvatar } from "../atoms/AppAvatar";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import userPng from "../../assets/images/user.png";
+import useCrypto from "../../utils/hooks/encrypt";
 
 export default function AppMenu() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
+  const { decryptedData } = useCrypto();
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -33,7 +35,7 @@ export default function AppMenu() {
         onClick={handleClick}
         alt="Remy Sharp"
         src={
-          userPng
+          decryptedData?.user.image || userPng
         }
       />
       <Menu

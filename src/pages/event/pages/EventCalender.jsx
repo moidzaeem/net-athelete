@@ -19,6 +19,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import EventModal from "../components/CreateModal";
 import useCrypto from "../../../utils/hooks/encrypt";
+import { toast } from "react-toastify";
 
 const EventCalendar = () => {
   const [sortBy, setSortBy] = useState("");
@@ -47,8 +48,9 @@ const EventCalendar = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });      const fetchedEvents = response.data.data;
-      
+      });
+      const fetchedEvents = response.data.data;
+
       // Filter today's events
       const today = new Date();
       const todayFiltered = fetchedEvents.filter((event) => {
@@ -70,12 +72,66 @@ const EventCalendar = () => {
     }
   };
 
+  const handleFollowEvent = async (eventId) => {
+    try {
+      const token = decryptedData?.tokens?.access?.token;
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+      const response = await axios.post(
+        `${url}/event/follow`,
+        { event_id: eventId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        fetchEvents();
+      } else {
+        throw new Error("Failed to Follow Event");
+      }
+    } catch (error) {
+      console.error("Error following Event: ", error);
+      toast.error("Failed to follow Event. Please try again.");
+    }
+  };
+
+  const handleUnfollowEvent = async (eventId) => {
+    try {
+      const token = decryptedData?.tokens?.access?.token;
+      if (!token) {
+        throw new Error("No token found in local storage");
+      }
+      const response = await axios.post(
+        `${url}/event/un-follow`,
+        { event_id: eventId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+        fetchEvents();
+      } else {
+        throw new Error("Failed to Un-Follow Event");
+      }
+    } catch (error) {
+      console.error("Error Un-Following Event: ", error);
+      toast.error("Failed to Un-Follow Event. Please try again.");
+    }
+  };
+
   useEffect(() => {
     if (decryptedData && decryptedData.tokens && decryptedData.tokens.access) {
       fetchEvents();
     }
   }, [decryptedData]);
-  
 
   return (
     <Grid container spacing={2}>
@@ -171,32 +227,35 @@ const EventCalendar = () => {
                   width={150}
                   style={{ borderRadius: "12px" }}
                   src={event.image}
-                  alt={event.title}
+                  alt={event.name}
                 />
                 <AppDiv sx={{ display: "block", alignItems: "center" }}>
                   <Appfont sx={{ textAlign: "left", ml: 2 }}>
-                    {event.title}
+                    {event.name}
                   </Appfont>
                   <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-                    <RoomIcon
-                      sx={{ color: "grey", ml: 1 }}
-                      fontSize="small"
-                    />
-                    <Appfont sx={{ mr: 1, ml: 1 }}>
-                      {event.location.name}
-                    </Appfont>
-                    <Appcaption>{event.location.city}, {event.location.country}</Appcaption>
+                    <RoomIcon sx={{ color: "grey", ml: 1 }} fontSize="small" />
+                    <Appfont sx={{ mr: 1, ml: 1 }}>{event.location}</Appfont>
+                    <Appcaption>
+                      {event.location.city}, {event.location.country}
+                    </Appcaption>
                   </AppDiv>
                 </AppDiv>
               </AppDiv>
               <AppDiv>
                 <AppButton
+                  sx={{ backgroundColor: "#F83C4D", width: 100 }}
                   variant="contained"
-                  fullWidth
-                  color="primary"
-                  sx={{ background: gamma }}
+                  color="error"
+                  onClick={() => {
+                    if (event.follower_list.includes(authenticatedUserId))
+                      handleUnfollowEvent(event.id);
+                    else handleFollowEvent(event.id);
+                  }}
                 >
-                  {event.category}
+                  {event.follower_list.includes(authenticatedUserId)
+                    ? "Unfollow"
+                    : "Follow"}
                 </AppButton>
               </AppDiv>
             </AppDiv>
@@ -302,11 +361,13 @@ const EventCalendar = () => {
                     </Appfont>
                     <AppDiv sx={{ display: "flex", mt: 1, mb: 1 }}>
                       <Appfont>{event.location}</Appfont>
-                    
+
                       <PlaceIcon fontSize="small" sx={{ ml: 1 }} />
                     </AppDiv>
                     <AppDiv sx={{ display: "flex" }}>
-                      <Appcaption sx={{ ml: 2 }}>{event.follower_list.length} People Join</Appcaption>
+                      <Appcaption sx={{ ml: 2 }}>
+                        {event.follower_list.length} People Join
+                      </Appcaption>
                     </AppDiv>
                     <AppDiv
                       sx={{ display: "flex", alignItems: "center", mt: 1 }}
@@ -345,11 +406,18 @@ const EventCalendar = () => {
                     <b>{event.dateDay}</b>
                   </Appfont>
                   <AppButton
-                    sx={{ backgroundColor: "#FFC542", width: 100 }}
+                    sx={{ backgroundColor: "#F83C4D", width: 100 }}
                     variant="contained"
-                    color="warning"
+                    color="error"
+                    onClick={() => {
+                      if (event.follower_list.includes(authenticatedUserId))
+                        handleUnfollowEvent(event.id);
+                      else handleFollowEvent(event.id);
+                    }}
                   >
-                    Follow
+                    {event.follower_list.includes(authenticatedUserId)
+                      ? "Unfollow"
+                      : "Follow"}
                   </AppButton>
                   {/* <AppIconButton
                     sx={{ border: "1px solid #E2E2EA", mr: 1, ml: 1 }}

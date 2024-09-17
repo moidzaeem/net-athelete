@@ -11,6 +11,7 @@ import userPng from "../../../assets/images/user.png";
 
 const PostCard = ({ changeFeedData, setChangeFeedData }) => {
   const { decryptedData } = useCrypto();
+  console.log(decryptedData);
   const [postContent, setPostContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -114,7 +115,7 @@ const PostCard = ({ changeFeedData, setChangeFeedData }) => {
       </AppDiv>
       <Divider sx={{ my: 2 }} />
       <AppDiv sx={{ display: "flex", alignItems: "center" }}>
-        <Avatar src={userPng} />
+        <Avatar src={decryptedData?.user.image || userPng} />
         <TextField
           sx={{
             "& .MuiOutlinedInput-root": {

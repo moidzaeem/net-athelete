@@ -63,6 +63,7 @@ const PersonalInfoTab = () => {
     detailAddress: "",
     // identity: { identityType: "", identityNumber: "" },
     id_card: "",
+    image:""
   });
 
   React.useEffect(() => {
@@ -88,6 +89,7 @@ const PersonalInfoTab = () => {
           const portfolio_link = userProfileData.portfolio_link || '';
           const birth_place = userProfileData.birth_place || '';
           const date_of_birth = userProfileData.date_of_birth || '';
+          const image = userProfileData.image || ''
   
           // Ensure address splitting handles missing or unexpected formats
           const addressParts = userProfileData.address ? userProfileData.address.split(", ") : [];
@@ -107,6 +109,7 @@ const PersonalInfoTab = () => {
             zipCode,
             cityTown,
             id_card,
+            image
           });
         } else {
           throw new Error("Failed to fetch user profile data");
@@ -145,6 +148,7 @@ const PersonalInfoTab = () => {
       date_of_birth: personalInfoFormData.date_of_birth,
       address: `${personalInfoFormData.detailAddress}, ${personalInfoFormData.zipCode}, ${personalInfoFormData.cityTown}`,
       id_card: personalInfoFormData.id_card,
+      image:personalInfoFormData.image
     };
 
     try {
@@ -169,6 +173,44 @@ const PersonalInfoTab = () => {
     }
   };
 
+  const handleFileInputClick = () => {
+    document.getElementById('file-input').click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        // Step 1: Get upload URL
+        const token = decryptedData?.tokens?.access?.token;
+        if (!token) throw new Error("No token found");
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const uploadResponse = await axios.post(`${url}/user/upload-file`, formData, {
+          headers: { 
+            Authorization: `Bearer ${token}` 
+          },
+        });
+        console.log(uploadResponse);
+
+        if (uploadResponse.status === 200) {
+          setPersonalInfoFormData(prevData => ({
+            ...prevData,
+            image: uploadResponse.data.data.upload_link,
+          }));
+          
+        } else {
+          throw new Error("Failed to get upload URL");
+        }
+      } catch (error) {
+        console.error("Error uploading profile picture:", error);
+        toast.error("Failed to upload profile picture. Please try again.");
+      }
+    }
+  };
+
   return (
     <div
       style={{
@@ -187,10 +229,19 @@ const PersonalInfoTab = () => {
           Change Image
         </AppButton> */}
       </AppDiv>
-      <Avatar
-        alt={cameraIcon}
-        src={cameraIcon}
-        sx={{ width: 100, height: 100, top: 40, left: 30 }}
+      <div onClick={handleFileInputClick} style={{ cursor: 'pointer' }}>
+        <Avatar
+          alt="Profile Picture"
+          src={personalInfoFormData.image || cameraIcon}
+          sx={{ width: 100, height: 100, top: 40, left: 30 }}
+        />
+      </div>
+      <input
+        id="file-input"
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
       />
       <form onSubmit={onPersonalInfoSubmit}>
         <AppDiv

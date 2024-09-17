@@ -291,8 +291,8 @@ const AllEvents = () => {
                       <img
                         width={200}
                         style={{ borderRadius: "10px" }}
-                        src="https://img.freepik.com/free-photo/success-grass-soccer-ball-generated-by-ai_188544-9819.jpg"
-                        alt=""
+                        src={event.image}
+                        alt={event.name}
                       />
                       <AppDiv sx={{ ml: 2 }}>
                         <Appfont sx={{ textAlign: "left" }}>
