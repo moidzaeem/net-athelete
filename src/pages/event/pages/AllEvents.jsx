@@ -14,7 +14,7 @@ import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
-
+import userPng from "../../../assets/images/user.png"
 const AllEvents = () => {
   const { decryptedData } = useCrypto();
   const url = import.meta.env.VITE_BASE_URL;
@@ -305,12 +305,23 @@ const AllEvents = () => {
                           </Appcaption>
                           <PlaceIcon fontSize="small" sx={{ ml: 1 }} />
                         </AppDiv>
-                        <AppDiv sx={{ display: "flex" }}>
-                          <Appcaption sx={{ mt: 1, color: secondary }}>
-                            {`${startDate.toLocaleString('default', { month: 'short' })} ${date}`}
-                          </Appcaption>
-                        </AppDiv>
+                        <AppDiv sx={{ display: "flex", mt: 1 }}>
+      {event.follower_details.map((follower, index) => (
+        <img
+          key={index}
+          src={follower?.image || userPng} // Replace with a placeholder URL
+          alt={follower?.name || 'Follower'}
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: '50%',
+            marginLeft: index > 0 ? -10 : 0 // Overlap images slightly
+          }}
+        />
+      ))}
+    </AppDiv>
                       </AppDiv>
+
                     </AppDiv>
                     <AppDiv>
                       <Appfont
