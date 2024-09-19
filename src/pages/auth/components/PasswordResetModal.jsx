@@ -11,7 +11,7 @@ const PasswordResetModal = ({ open, handleClose }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/auth/reset-password`,
+        `${import.meta.env.VITE_BASE_URL}/auth/reset-password-request`,
         { email }
       );
 
