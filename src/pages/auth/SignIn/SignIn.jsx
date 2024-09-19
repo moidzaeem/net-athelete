@@ -14,6 +14,7 @@ import googleIcon from "../../../assets/svg/googleIcon.svg";
 import facebookIcon from "../../../assets/svg/fbIcon.svg";
 import twitterIcon from "../../../assets/svg/twiiterIcon.svg";
 import { Link, useNavigate } from "react-router-dom";
+import PasswordResetModal from "../components/PasswordResetModal"
 import {
   PaperStyle,
   flexCol,
@@ -43,6 +44,12 @@ const SignInPage = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -198,7 +205,9 @@ const SignInPage = () => {
                   )}
                 </Stack> */}
               </Paper>
-              <Appfont sx={{ mt: 2 }}>
+              <Appfont sx={{ mt: 2 }}
+              onClick={handleOpenModal} 
+              >
                 Forgot Password{" "}
                 <Link to={RoutePath.SIGNUP} style={{ color: gamma }}>
                   Sign up for new user?
@@ -208,6 +217,8 @@ const SignInPage = () => {
           </Grid>
         </Grid>
       </Grid>
+      <PasswordResetModal open={modalOpen} handleClose={handleCloseModal} />
+
     </>
   );
 };
