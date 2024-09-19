@@ -18,6 +18,7 @@ const SearchSidebar = ({ onFilterChange }) => {
     startDate: '',
     endDate: '',
   });
+  const [searchValue, setSearchValue] = React.useState("");
 
   // Handle requirement changes
   const handleRequirementChange = (event) => {
@@ -47,6 +48,17 @@ const SearchSidebar = ({ onFilterChange }) => {
     onFilterChange({ ...selectedRequirements, dateRange, location });
   };
 
+  const handleSearchChange = (event) => {
+    const searchTerm = event.target.value;
+    setSearchValue(searchTerm);
+    onFilterChange({ ...selectedRequirements, dateRange, location: selectedLocation, searchValue: searchTerm });
+  };
+
+  const handleSearchSubmit = (value) => {
+    setSearchValue(value);
+    onFilterChange({ ...selectedRequirements, dateRange, location: selectedLocation, searchValue: value });
+  };
+
   return (
     <div className="fixed mt-8">
       <AppDiv
@@ -60,8 +72,11 @@ const SearchSidebar = ({ onFilterChange }) => {
         <KeyboardArrowLeftIcon color="primary" />
       </AppDiv>
       <AppDiv height={20} />
-      <AppSearchBar />
-      <AppDiv height={20} />
+      <AppSearchBar 
+        onChange={handleSearchChange} 
+        onSearch={handleSearchSubmit} 
+        value={searchValue} 
+      />      <AppDiv height={20} />
 
       {/* Additional Requirements */}
       {/* Uncomment this section if requirements are needed

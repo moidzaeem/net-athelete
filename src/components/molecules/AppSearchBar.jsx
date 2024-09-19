@@ -5,17 +5,12 @@ import searchIcon from "../../assets/svg/search.svg";
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   backgroundColor: "#F1F1F5",
-  "&:hover": {
-    backgroundColor: "#F1F1F5",
-  },
   marginLeft: 0,
   width: "100%",
   [theme.breakpoints.up("sm")]: {
-    // marginLeft: theme.spacing(1),
     width: "auto",
   },
   color: "#92929D",
-  fontSize: 6,
   borderRadius: 10,
 }));
 
@@ -27,34 +22,48 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  fontSize: 6,
 }));
 
-const AppSearchBar = ({ w1 = "115px", w2 = "190px" }) => {
-  const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: "black",
-    width: "100%",
-    "& .MuiInputBase-input": {
-      padding: theme.spacing(1, 1, 1, 0),
-      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-      transition: theme.transitions.create("width"),
-      [theme.breakpoints.up("sm")]: {
-        width: w1,
-        "&:focus": {
-          width: w2,
-        },
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "black",
+  width: "100%",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    [theme.breakpoints.up("sm")]: {
+      width: "115px",
+      "&:focus": {
+        width: "190px",
       },
     },
-    fontSize: 12,
-    fontFamily: "Poppins",
-  }));
+  },
+  fontSize: 12,
+  fontFamily: "Poppins",
+}));
+
+const AppSearchBar = ({ 
+  onChange, 
+  onSearch, 
+  placeholder = "Find", 
+  value = "" 
+}) => {
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      onSearch(value);
+    }
+  };
+
   return (
     <Search>
       <SearchIconWrapper>
-        <img src={searchIcon} width={20} alt="" />
+        <img src={searchIcon} width={20} alt="Search icon" />
       </SearchIconWrapper>
       <StyledInputBase
-        placeholder="Find"
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        onKeyPress={handleKeyPress}
         inputProps={{ "aria-label": "search" }}
       />
     </Search>

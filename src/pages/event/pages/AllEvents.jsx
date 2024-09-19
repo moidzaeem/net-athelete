@@ -1,5 +1,5 @@
-import React from 'react';
-import { Grid, Select, MenuItem } from '@mui/material';
+import React from "react";
+import { Grid, Select, MenuItem } from "@mui/material";
 import AppDiv from "../../../components/atoms/AppDiv";
 import { PaperStyle } from "../../../utils/styles";
 import SearchSidebar from "../components/SearchSidebar";
@@ -14,7 +14,7 @@ import useCrypto from "../../../utils/hooks/encrypt";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
-import userPng from "../../../assets/images/user.png"
+import userPng from "../../../assets/images/user.png";
 const AllEvents = () => {
   const { decryptedData } = useCrypto();
   const url = import.meta.env.VITE_BASE_URL;
@@ -53,26 +53,37 @@ const AllEvents = () => {
     console.log(filters);
 
     if (filters.dateRange.startDate) {
-      filteredEvents = filteredEvents.filter(event =>
-        new Date(event.start_date) >= new Date(filters.dateRange.startDate)
+      filteredEvents = filteredEvents.filter(
+        (event) =>
+          new Date(event.start_date) >= new Date(filters.dateRange.startDate)
       );
     }
     if (filters.dateRange.endDate) {
-      filteredEvents = filteredEvents.filter(event =>
-        new Date(event.end_date) <= new Date(filters.dateRange.endDate)
+      filteredEvents = filteredEvents.filter(
+        (event) =>
+          new Date(event.end_date) <= new Date(filters.dateRange.endDate)
       );
     }
     if (filters.followers) {
-      filteredEvents = filteredEvents.filter(event =>
-        event.follower_list.length >= filters.followers
+      filteredEvents = filteredEvents.filter(
+        (event) => event.follower_list.length >= filters.followers
       );
     }
 
     if (filters.location) {
-      filteredEvents = filteredEvents.filter(event =>
+      filteredEvents = filteredEvents.filter((event) =>
         event.location.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
+
+    // Filter by search term
+  if (filters.searchValue) {
+    filteredEvents = filteredEvents.filter((event) =>
+      event.name.toLowerCase().includes(filters.searchValue.toLowerCase()) || // Adjust according to your event property
+      event.details.toLowerCase().includes(filters.searchValue.toLowerCase()) // If you have a description
+    );
+  }
+
 
     console.log(filteredEvents);
 
@@ -88,9 +99,13 @@ const AllEvents = () => {
   const sortEvents = (criteria) => {
     let sortedList = [...sortedEventsList];
     if (criteria === "popularity") {
-      sortedList.sort((a, b) => b.follower_list?.length - a.follower_list?.length);
+      sortedList.sort(
+        (a, b) => b.follower_list?.length - a.follower_list?.length
+      );
     } else if (criteria === "lastUpdated") {
-      sortedList.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+      sortedList.sort(
+        (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+      );
     }
     setSortedEventsList(sortedList);
   };
@@ -119,16 +134,22 @@ const AllEvents = () => {
         toast.success(response.data.message);
         // Update event follower list in local state
         setAllEventsList((prevList) =>
-          prevList.map(event =>
+          prevList.map((event) =>
             event.id === eventId
-              ? { ...event, follower_list: [...event.follower_list, authenticatedUserId] }
+              ? {
+                  ...event,
+                  follower_list: [...event.follower_list, authenticatedUserId],
+                }
               : event
           )
         );
         setSortedEventsList((prevList) =>
-          prevList.map(event =>
+          prevList.map((event) =>
             event.id === eventId
-              ? { ...event, follower_list: [...event.follower_list, authenticatedUserId] }
+              ? {
+                  ...event,
+                  follower_list: [...event.follower_list, authenticatedUserId],
+                }
               : event
           )
         );
@@ -160,16 +181,26 @@ const AllEvents = () => {
         toast.success(response.data.message);
         // Update event follower list in local state
         setAllEventsList((prevList) =>
-          prevList.map(event =>
+          prevList.map((event) =>
             event.id === eventId
-              ? { ...event, follower_list: event.follower_list.filter(id => id !== authenticatedUserId) }
+              ? {
+                  ...event,
+                  follower_list: event.follower_list.filter(
+                    (id) => id !== authenticatedUserId
+                  ),
+                }
               : event
           )
         );
         setSortedEventsList((prevList) =>
-          prevList.map(event =>
+          prevList.map((event) =>
             event.id === eventId
-              ? { ...event, follower_list: event.follower_list.filter(id => id !== authenticatedUserId) }
+              ? {
+                  ...event,
+                  follower_list: event.follower_list.filter(
+                    (id) => id !== authenticatedUserId
+                  ),
+                }
               : event
           )
         );
@@ -203,8 +234,7 @@ const AllEvents = () => {
               },
             }}
           >
-            <SearchSidebar onFilterChange={handleFilterChange} /> 
-            
+            <SearchSidebar onFilterChange={handleFilterChange} />
           </AppDiv>
         </Grid>
         <Grid item xs={12} md={9.3} className="px-6 md:px-10 py:10">
@@ -261,7 +291,7 @@ const AllEvents = () => {
               });
               const date = startDate.getDate();
               return (
-                <Link key={event.id} to={`/event/${event.id}`}>
+               
                   <AppDiv
                     sx={{
                       ...PaperStyle,
@@ -279,6 +309,7 @@ const AllEvents = () => {
                       },
                     }}
                   >
+                     <Link key={event.id} to={`/event/${event.id}`}>
                     <AppDiv
                       sx={{
                         display: "flex",
@@ -306,23 +337,23 @@ const AllEvents = () => {
                           <PlaceIcon fontSize="small" sx={{ ml: 1 }} />
                         </AppDiv>
                         <AppDiv sx={{ display: "flex", mt: 1 }}>
-      {event.follower_details.map((follower, index) => (
-        <img
-          key={index}
-          src={follower?.image || userPng} // Replace with a placeholder URL
-          alt={follower?.name || 'Follower'}
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: '50%',
-            marginLeft: index > 0 ? -10 : 0 // Overlap images slightly
-          }}
-        />
-      ))}
-    </AppDiv>
+                          {event.follower_details.map((follower, index) => (
+                            <img
+                              key={index}
+                              src={follower?.image || userPng} // Replace with a placeholder URL
+                              alt={follower?.name || "Follower"}
+                              style={{
+                                width: 30,
+                                height: 30,
+                                borderRadius: "50%",
+                                marginLeft: index > 0 ? -10 : 0, // Overlap images slightly
+                              }}
+                            />
+                          ))}
+                        </AppDiv>
                       </AppDiv>
-
                     </AppDiv>
+                    </Link>
                     <AppDiv>
                       <Appfont
                         sx={{
@@ -373,7 +404,6 @@ const AllEvents = () => {
                       </AppIconButton>
                     </AppDiv>
                   </AppDiv>
-                </Link>
               );
             })}
           </div>
