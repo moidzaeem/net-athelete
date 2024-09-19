@@ -28,7 +28,7 @@ const ResetPasswordPage = () => {
       );
 
       toast.success(response.data.message);
-      navigate("/login"); // Redirect to login after successful reset
+      navigate("/"); // Redirect to login after successful reset
     } catch (error) {
       console.error("Password reset failed:", error);
       setError(error.response?.data?.message || "An error occurred. Please try again.");

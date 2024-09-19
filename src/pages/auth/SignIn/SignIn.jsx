@@ -66,16 +66,14 @@ const SignInPage = () => {
         }
       );
 
-      if (response?.status === 200) {
+      if (response?.status === 200 && response.data.status==200) {
         console.log(response)
         encrypt(response.data.data); 
         toast(response.data.message);
         navigate("/profile-registration"); 
-           window.location.reload();
-        // Delay the reload to give time for the toast to be visible
-        // setTimeout(() => {
-        //   window.location.reload();
-        // }, 1000); // 1 second delay
+        window.location.reload();
+      }else{
+        setError("Login failed. Please try again.");
       }
     } catch (error) {
       console.error("Login failed:", error);
